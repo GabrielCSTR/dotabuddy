@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Versions from '@renderer/components/Versions.vue';
+import Versions from '@renderer/components/Versions.vue'
 </script>
 
 <template>
@@ -10,17 +10,17 @@ import Versions from '@renderer/components/Versions.vue';
   <div
     class="flex flex-col items-center absolute top-3/4 left-1/2 transform translate-x-[-50%] translate-y-[-50%] text-white">
     <h1
-      class="bg-gradient-to-r uppercase text-5xl font-extrabold from-green-800 via-green-700 to-green-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-red-700">
-      Dota2Buddy
+      class="text-8xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700">
+      DotoBot
     </h1>
     <h1
-      class="bg-gradient-to-r uppercase text-5xl from-green-800 via-green-700 to-green-600 inline-block text-transparent bg-clip-text">
+      class="bg-gradient-to-r uppercase text-5xl squada-one-regular from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text">
       Stats
     </h1>
-    <p class="bg-gradient-to-r mt-2 text-center text-lg from-orange-800 via-orange-700 to-orange-600 inline-block text-transparent bg-clip-text"
+    <p class="bg-gradient-to-r font-semibold squada-one-regular mt-2 text-center text-lg from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text"
       style="text-shadow: 0 0 2px rgba(255, 255, 255, 0.8)">
-      DotaBuddy is a cross-platform, open-source application with helpful features for when you're playing a match of
-      Dota 2
+      DotaBuddy is a cross-platform, open-source application with helpful features for when you're
+      playing a match of Dota 2
     </p>
     <Versions />
   </div>

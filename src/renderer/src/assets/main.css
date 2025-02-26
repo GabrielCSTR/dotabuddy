@@ -1,4 +1,6 @@
 @import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bowlby+One&display=swap');
 
 body {
   display: flex;
@@ -149,6 +151,18 @@ code {
   &:last-child {
     border: none;
   }
+}
+
+.squada-one-regular {
+  font-family: 'Squada One', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.squada-one-bold {
+  font-family: 'Squada One', sans-serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 @media (max-width: 720px) {

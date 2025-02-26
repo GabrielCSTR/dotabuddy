@@ -1,16 +1,29 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { devMenuTemplate } from '../renderer/src/menu/dev_menu_template'
+import { editMenuTemplate } from '../renderer/src/menu/edit_menu_template'
+
+function setApplicationMenu() {
+  const menus = [editMenuTemplate]
+  if (is.dev) {
+    menus.push(devMenuTemplate)
+  }
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menus))
+}
 
 function createWindow(): void {
+  setApplicationMenu()
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1700,
-    height: 870,
-    minWidth: 1700,
-    minHeight: 870,
+    width: 1280,
+    height: 720,
+    minWidth: 1280,
+    minHeight: 720,
     resizable: true,
+    frame: false,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -22,6 +35,10 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  if (is.dev) {
+    mainWindow.webContents.openDevTools()
+  }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
