@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { Dota2Events } from '@renderer/types'
+import MatchTimer from '@renderer/components/MatchTimer.vue'
 
 const gameState = ref<Dota2Events>()
 const radiantPlayers = ref<Dota2Events['player']>()
@@ -22,24 +23,23 @@ onMounted(() => {
   fetchDotaData()
   setInterval(fetchDotaData, 1000)
 })
-
-const toHHMMSS = (num: number) => {
-  const min = Math.floor(num / 60)
-  const sec = num % 60
-  return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-}
 </script>
 <template>
   <div class="flex flex-col w-full h-full items-center p-4">
-    <div class="w-full max-w-4xl items-center justify-center flex flex-col gap-4 mx-auto mt-8">
-      <h1 class="text-2xl font-bold text-center">Dota 2 Overlay</h1>
-      <p v-if="gameState?.map" class="text-center text-gray-400 mb-4">
-        Tempo de jogo: {{ toHHMMSS(gameState.map.clock_time) }}
-      </p>
-      <p v-else class="text-center text-gray-400">Aguardando dados do Dota 2...</p>
+    <div class="w-full max-w-4xl items-center flex flex-col gap-4 mx-auto">
+      <h1
+        class="text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
+      >
+        <i class="pi pi-sitemap text-amber-800 text-4xl"></i>
+        CURRENT MATCH
+      </h1>
     </div>
 
-    <div class="flex flex-col gap-4">
+    <MatchTimer v-if="gameState?.map" :map="gameState?.map" />
+
+    <Divider type="solid" />
+
+    <div v-if="gameState?.map" class="flex flex-col gap-4">
       <!-- Radiant Team -->
       <div class="flex items-center justify-center gap-4">
         <div
@@ -78,5 +78,12 @@ const toHHMMSS = (num: number) => {
         </div>
       </div>
     </div>
+
+    <p v-else class="text-center text-gray-400">Aguardando dados do Dota 2...</p>
   </div>
 </template>
+<style>
+.p-divider.p-divider-horizontal:before {
+  border-top: 1px solid #e5e7eb !important;
+}
+</style>

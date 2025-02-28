@@ -14,6 +14,7 @@ export function setupIpcGSIDota2Handlers() {
   })
 
   ipcMain.handle('get-dota2-data', () => {
+    // return gameState
     return dota2Events
   })
 }

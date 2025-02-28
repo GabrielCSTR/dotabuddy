@@ -19,7 +19,7 @@ import TabList from 'primevue/tablist'
 import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
-
+import Divider from 'primevue/divider'
 // Prime directives imports
 import Ripple from 'primevue/ripple'
 
@@ -45,6 +45,7 @@ export default function ({ app }: PluginContext) {
   app.component('Tab', Tab)
   app.component('TabPanels', TabPanels)
   app.component('TabPanel', TabPanel)
+  app.component('Divider', Divider)
 
   // Prime directives
   app.directive('ripple', Ripple)
