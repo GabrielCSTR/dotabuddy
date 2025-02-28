@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="dark">
+  <div class="flex w-full dark">
     <router-view />
   </div>
 </template>

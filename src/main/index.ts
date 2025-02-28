@@ -1,9 +1,11 @@
 import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
-import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 import { devMenuTemplate } from '../renderer/src/menu/dev_menu_template'
 import { editMenuTemplate } from '../renderer/src/menu/edit_menu_template'
+import { setupIpcHandlers } from './events-ipc'
+import { join } from 'path'
+import icon from '../../resources/icon.png?asset'
+import { setupIpcGSIDota2Handlers } from './dota2-gsi'
 
 function setApplicationMenu() {
   const menus = [editMenuTemplate]
@@ -22,10 +24,7 @@ function createWindow(): void {
     height: 720,
     minWidth: 1280,
     minHeight: 720,
-    resizable: true,
     frame: false,
-    show: false,
-    autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       nodeIntegrationInWorker: true,
@@ -76,6 +75,10 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
+
+  setupIpcHandlers()
+
+  setupIpcGSIDota2Handlers()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

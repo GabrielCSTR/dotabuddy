@@ -1,22 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import IndexVue from '@renderer/pages/Index.vue'
-import DashboardVue from '@renderer/pages/Dashboard.vue'
 const routes = [
   {
     path: '/',
     name: 'Index',
-    component: IndexVue,
-    meta: {
-      layout: 'EmptyLayout'
-    }
+    component: () => import('@renderer/pages/Index.vue')
   },
   {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardVue,
-    meta: {
-      layout: 'DefaultLayout'
-    }
+    path: '/app',
+    component: () => import('@renderer/pages/Dashboard.vue'),
+    children: [
+      {
+        path: 'current-match',
+        name: 'CurrentMatch',
+        component: () => import('@renderer/pages/CurrentMatch.vue')
+      },
+      {
+        path: 'match-history',
+        name: 'MatchHistory',
+        component: () => import('@renderer/pages/MatchHistory.vue')
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@renderer/pages/Settings.vue')
+      }
+    ]
   }
 ]
 
@@ -25,7 +33,5 @@ const router = createRouter({
   routes,
   linkExactActiveClass: 'active'
 })
-
-// router.beforeEach(loadLayoutMiddleware)
 
 export default router
