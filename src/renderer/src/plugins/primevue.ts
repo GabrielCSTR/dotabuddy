@@ -20,8 +20,13 @@ import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import Divider from 'primevue/divider'
-// Prime directives imports
 import Ripple from 'primevue/ripple'
+import Avatar from 'primevue/avatar'
+import Badge from 'primevue/badge'
+import Accordion from 'primevue/accordion'
+import AccordionTab from 'primevue/accordiontab'
+import Panel from 'primevue/panel'
+import OverlayBadge from 'primevue/overlaybadge'
 
 // Prime config imports
 // import Aura from "@primevue/themes/aura";
@@ -46,6 +51,12 @@ export default function ({ app }: PluginContext) {
   app.component('TabPanels', TabPanels)
   app.component('TabPanel', TabPanel)
   app.component('Divider', Divider)
+  app.component('Accordion', Accordion)
+  app.component('AccordionTab', AccordionTab)
+  app.component('Avatar', Avatar)
+  app.component('Badge', Badge)
+  app.component('Panel', Panel)
+  app.component('OverlayBadge', OverlayBadge)
 
   // Prime directives
   app.directive('ripple', Ripple)

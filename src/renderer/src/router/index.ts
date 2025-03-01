@@ -3,7 +3,7 @@ const routes = [
   {
     path: '/',
     name: 'Index',
-    component: () => import('@renderer/pages/Index.vue')
+    component: () => import('@renderer/pages/Dashboard.vue')
   },
   {
     path: '/app',
@@ -11,17 +11,17 @@ const routes = [
     children: [
       {
         path: 'current-match',
-        name: 'CurrentMatch',
+        name: 'app-current-match',
         component: () => import('@renderer/pages/CurrentMatch.vue')
       },
       {
         path: 'match-history',
-        name: 'MatchHistory',
+        name: 'app-match-history',
         component: () => import('@renderer/pages/MatchHistory.vue')
       },
       {
         path: 'settings',
-        name: 'Settings',
+        name: 'app-settings',
         component: () => import('@renderer/pages/Settings.vue')
       }
     ]

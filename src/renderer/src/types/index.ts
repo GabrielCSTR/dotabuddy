@@ -67,7 +67,7 @@ interface Map {
   radiant_win_chance: number
 }
 
-interface PlayerStats {
+export interface PlayerStats {
   steamid: string
   accountid: string
   name: string
@@ -207,4 +207,24 @@ export interface Dota2Events {
   auth: {
     token: string
   }
+}
+
+export interface SteamPlayerSummary {
+  steamid: string
+  communityvisibilitystate: number
+  profilestate: number
+  personaname: string
+  commentpermission: number
+  profileurl: string
+  avatar: string
+  avatarmedium: string
+  avatarfull: string
+  avatarhash: string
+  personastate: number
+  realname: string
+  primaryclanid: string
+  timecreated: number
+  personastateflags: number
+  loccountrycode: string
+  locstatecode: string
 }
