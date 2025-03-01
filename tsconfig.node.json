@@ -15,7 +15,7 @@
     "composite": true,
     "types": ["electron-vite/node"],
     "target": "es2020",
-    "module": "commonjs",
+    "module": "es2020",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
