@@ -27,6 +27,7 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Panel from 'primevue/panel'
 import OverlayBadge from 'primevue/overlaybadge'
+import Tooltip from 'primevue/tooltip'
 
 // Prime config imports
 // import Aura from "@primevue/themes/aura";
@@ -57,6 +58,7 @@ export default function ({ app }: PluginContext) {
   app.component('Badge', Badge)
   app.component('Panel', Panel)
   app.component('OverlayBadge', OverlayBadge)
+  app.directive('tooltip', Tooltip)
 
   // Prime directives
   app.directive('ripple', Ripple)

@@ -159,7 +159,7 @@ interface Heroes {
   team3: Record<string, IHero>
 }
 
-interface Ability {
+export interface IAbility {
   name: string
   level: number
   can_cast: boolean
@@ -173,8 +173,8 @@ interface Ability {
 }
 
 interface Abilities {
-  team2: Record<string, Record<string, Ability>>
-  team3: Record<string, Record<string, Ability>>
+  team2: Record<string, Record<string, IAbility>>
+  team3: Record<string, Record<string, IAbility>>
 }
 
 interface Item {
@@ -254,7 +254,7 @@ interface profile {
   avatarfull: string
   profileurl: string
   last_login: string
-  loccountrycode: number
+  loccountrycode: string
   status: string
   fh_unavailable: boolean
   is_contributor: boolean
@@ -272,4 +272,58 @@ export interface MatchPlayer {
   profile: profile
   rank: rank
   rank_tier: number
+}
+
+export interface Battlepass {
+  level: number
+}
+
+export interface Guild {
+  guild: {
+    logo: string
+    motd: string
+    name: string
+    tag: string
+  }
+}
+
+export interface IHeroes {
+  heroId: number
+  winCount: number
+  lossCount: number
+}
+export interface SimpleSummary {
+  lastUpdateDateTime: number
+  matchCount: number
+  heroes: IHeroes[]
+}
+
+export interface ProSteamAccount {
+  isPro: boolean
+  name: string
+}
+export interface SteamAccount {
+  name: string
+  avatar: string
+  isAnonymous: boolean
+  seasonRank: number
+  smurfFlag: number
+  countryCode: string
+  isDotaPlusSubscriber: boolean
+  dotaAccountLevel: number
+  seasonLeaderboardRank: number
+  guild: Guild
+  battlepass: Battlepass[]
+  proSteamAccount: ProSteamAccount
+}
+
+export interface IPlayerSummary {
+  firstMatchDate: number
+  matchCount: number
+  winCount: number
+  MatchGroupBySteamId: []
+  MatchGroupByHero: []
+  simpleSummary: SimpleSummary
+  steamAccount: SteamAccount
+  matches: any[]
 }

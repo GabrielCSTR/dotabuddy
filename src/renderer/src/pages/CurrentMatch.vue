@@ -30,6 +30,16 @@ const fetchDotaData = async () => {
     )
     currentMatchStore.addRadiantHero(gameState.value.hero?.team2 as unknown as Dota2Events['hero'])
     currentMatchStore.addDireHero(gameState.value.hero?.team3 as unknown as Dota2Events['hero'])
+    currentMatchStore.addRadiantSkills(
+      gameState.value?.abilities?.team2 as unknown as Dota2Events['abilities']
+    )
+    currentMatchStore.addDireSkills(
+      gameState.value?.abilities?.team3 as unknown as Dota2Events['abilities']
+    )
+    currentMatchStore.addRadiantItems(
+      gameState.value?.items?.team2 as unknown as Dota2Events['items']
+    )
+    currentMatchStore.addDireItems(gameState.value?.items?.team3 as unknown as Dota2Events['items'])
     currentMatchStore.isMatchRunning = true
   }
 }
@@ -71,6 +81,7 @@ onMounted(() => {
             v-for="(player, key) in currentMatchStore.getRadiantPlayers()"
             :key="key"
             :player="player"
+            :index="key"
           />
         </div>
       </Panel>
@@ -87,59 +98,22 @@ onMounted(() => {
             v-for="(player, key) in currentMatchStore.getDirePlayers()"
             :key="key"
             :player="player"
+            :index="key"
           />
         </div>
       </Panel>
     </div>
-
-    <!-- <div v-if="gameState?.map" class="flex flex-col gap-4">
-
-      <div class="flex items-center justify-center gap-4">
-        <div
-          v-for="(player, key) in radiantPlayers"
-          :key="key"
-          class="bg-green-700 p-4 rounded-lg shadow-md flex items-center gap-4"
-        >
-          <img
-            v-if="radiantHeroes?.[key]"
-            :src="`http://cdn.dota2.com/apps/dota2/images/heroes/${String(radiantHeroes[key].name).split('npc_dota_hero_')[1]}_lg.png`"
-            class="w-28 h-full rounded-lg shadow-md"
-          />
-          <div>
-            <p class="font-bold">{{ player.name }}</p>
-            <p class="text-sm">KDA: {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}</p>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="flex justify-center gap-4">
-        <div
-          v-for="(player, key) in direPlayers"
-          :key="key"
-          class="bg-red-700 p-4 rounded-lg shadow-md flex items-center gap-4"
-        >
-          <img
-            v-if="direHeroes?.[key]"
-            :src="`http://cdn.dota2.com/apps/dota2/images/heroes/${String(direHeroes[key].name).split('npc_dota_hero_')[1]}_lg.png`"
-            class="w-28 h-full rounded-lg shadow-md"
-          />
-          <div>
-            <p class="font-bold">{{ player.name }}</p>
-            <p class="text-sm">KDA: {{ player.kills }}/{{ player.deaths }}/{{ player.assists }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <p v-else class="text-center text-gray-400">Aguardando dados do Dota 2...</p> -->
   </div>
 </template>
 <style scoped>
+:deep(.p-panel) {
+  background: #1a2939 !important;
+}
 :deep(.p-panel-content) {
   padding: 0px !important;
-  overflow-y: auto; /* Adiciona rolagem vertical */
-  max-height: 100%; /* Garante que o painel não exceda a altura disponível */
+  overflow-y: auto;
+  max-height: 100%;
+  margin-bottom: 15px !important;
 }
 .p-divider.p-divider-horizontal:before {
   border-top: 1px solid #e5e7eb !important;
