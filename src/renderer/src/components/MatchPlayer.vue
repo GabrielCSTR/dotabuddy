@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { PlayerStats } from '@renderer/types'
-import { onMounted } from 'vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import useOpenDota from '@renderer/composables/useOpenDota'
+import { useCurrentMatchStore } from '@renderer/stores'
 
 const { getPorfileOpenDota } = useOpenDota()
 
@@ -10,11 +10,22 @@ const props = defineProps<{
   player: PlayerStats
 }>()
 
+const currentMatchStore = useCurrentMatchStore()
 const playerOpenDota = ref()
 
 onMounted(async () => {
-  // player info
-  playerOpenDota.value = await getPorfileOpenDota(props.player.steamid)
+  // get player informations from opendota
+  const player = await getPorfileOpenDota(props.player.steamid)
+  const radiantPlayers = currentMatchStore.getRadiantPlayers()
+  const direPlayers = currentMatchStore.getDirePlayers()
+
+  playerOpenDota.value =
+    (radiantPlayers?.team2 &&
+      Object.values(radiantPlayers.team2).find((p) => p.steamid === props.player.steamid)) ||
+    (direPlayers?.team2 &&
+      Object.values(direPlayers.team2).find((p) => p.steamid === props.player.steamid)) ||
+    player
+
   console.log('playerOpenDota', playerOpenDota.value)
 })
 
@@ -25,7 +36,7 @@ const getFlagClass = (countryCode: string | undefined) => {
 </script>
 <template>
   <div
-    v-if="!playerOpenDota?.profile"
+    v-if="!currentMatchStore.isMatchRunning"
     class="flex flex-col w-full h-full items-center justify-center p-4"
   >
     <i class="pi pi-spin pi-spinner text-amber-800 text-5xl"></i>
@@ -63,10 +74,10 @@ const getFlagClass = (countryCode: string | undefined) => {
               alt="medal"
             />
             <p
-              v-if="playerOpenDota?.leaderboard_rank"
+              v-if="playerOpenDota?.player?.leaderboard_rank"
               class="absolute ml-4 mt-9 text-xl p-1 squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
             >
-              {{ playerOpenDota?.leaderboard_rank }}
+              {{ playerOpenDota?.player?.leaderboard_rank }}
             </p>
           </div>
         </div>

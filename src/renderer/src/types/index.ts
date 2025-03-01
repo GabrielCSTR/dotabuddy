@@ -113,7 +113,7 @@ interface Players {
   team3: Record<string, PlayerStats>
 }
 
-interface Hero {
+export interface IHero {
   facet: number
   xpos: number
   ypos: number
@@ -155,8 +155,8 @@ interface Hero {
 }
 
 interface Heroes {
-  team2: Record<string, Hero>
-  team3: Record<string, Hero>
+  team2: Record<string, IHero>
+  team3: Record<string, IHero>
 }
 
 interface Ability {
@@ -227,4 +227,49 @@ export interface SteamPlayerSummary {
   personastateflags: number
   loccountrycode: string
   locstatecode: string
+}
+
+interface hero {
+  hero_id: number
+  last_played: number
+  games: number
+  win: number
+  with_games: number
+  with_win: number
+  against_games: number
+  against_win: number
+  heroname: string
+  npc_name: string
+}
+
+interface profile {
+  account_id: number
+  personaname: string
+  name: string
+  plus: boolean
+  cheese: number
+  steamid: string
+  avatar: string
+  avatarmedium: string
+  avatarfull: string
+  profileurl: string
+  last_login: string
+  loccountrycode: number
+  status: string
+  fh_unavailable: boolean
+  is_contributor: boolean
+  is_subscriber: boolean
+}
+
+interface rank {
+  image: string
+  rank: number
+  title: string
+}
+export interface MatchPlayer {
+  bestHeroes: hero[]
+  leaderboard_rank: number
+  profile: profile
+  rank: rank
+  rank_tier: number
 }

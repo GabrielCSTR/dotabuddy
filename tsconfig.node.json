@@ -1,6 +1,16 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-  "include": ["electron.vite.config.*","src/**/*.ts", "src/**/*.vue", "src/main/*", "src/preload/*", "src/main/dota2-events.json"],
+  "include": [
+    "electron.vite.config.*",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "src/main/*.ts",
+    "src/main/*.json",
+    "src/preload/*",
+    "src/renderer/src/**/*.ts",
+    "src/renderer/src/**/*.vue",
+    "src/renderer/src/stores/*.ts",
+  ],
   "compilerOptions": {
     "composite": true,
     "types": ["electron-vite/node"],

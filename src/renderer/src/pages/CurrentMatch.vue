@@ -1,17 +1,16 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { Dota2Events } from '@renderer/types'
+import { useCurrentMatchStore } from '@renderer/stores/mathPlayer'
+
 import MatchTimer from '@renderer/components/MatchTimer.vue'
 import IconRadiant from '@renderer/components/icons/IconRadiant.vue'
 import IconDire from '@renderer/components/icons/IconDire.vue'
 import MathPlayer from '@renderer/components/MatchPlayer.vue'
 
-const gameState = ref<Dota2Events>()
-const radiantPlayers = ref<Dota2Events['player']>()
-const direPlayers = ref<Dota2Events['player']>()
-const radiantHeroes = ref<Dota2Events['hero']>()
-const direHeroes = ref<Dota2Events['hero']>()
+const currentMatchStore = useCurrentMatchStore()
 
+const gameState = ref<Dota2Events>()
 const isMatchRunning = ref(false)
 
 const fetchDotaData = async () => {
@@ -21,12 +20,17 @@ const fetchDotaData = async () => {
     gameState.value?.map.game_state == 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS'
 
   if (gameState.value && isMatchRunning.value) {
-    radiantPlayers.value = gameState.value.player?.team2 as unknown as Dota2Events['player']
     console.log('GAME STATE', gameState.value)
 
-    direPlayers.value = gameState.value.player?.team3 as unknown as Dota2Events['player']
-    radiantHeroes.value = gameState.value.hero?.team2 as unknown as Dota2Events['hero']
-    direHeroes.value = gameState.value.hero?.team3 as unknown as Dota2Events['hero']
+    currentMatchStore.addRadiantPlayer(
+      gameState.value.player?.team2 as unknown as Dota2Events['player']
+    )
+    currentMatchStore.addDirePlayer(
+      gameState.value.player?.team3 as unknown as Dota2Events['player']
+    )
+    currentMatchStore.addRadiantHero(gameState.value.hero?.team2 as unknown as Dota2Events['hero'])
+    currentMatchStore.addDireHero(gameState.value.hero?.team3 as unknown as Dota2Events['hero'])
+    currentMatchStore.isMatchRunning = true
   }
 }
 
@@ -63,7 +67,11 @@ onMounted(() => {
           </div>
         </template>
         <div class="flex flex-col w-full h-full gap-4">
-          <MathPlayer v-for="(player, key) in radiantPlayers" :key="key" :player="player" />
+          <MathPlayer
+            v-for="(player, key) in currentMatchStore.getRadiantPlayers()"
+            :key="key"
+            :player="player"
+          />
         </div>
       </Panel>
 
@@ -75,7 +83,11 @@ onMounted(() => {
           </div>
         </template>
         <div class="flex flex-col w-full h-full gap-4">
-          <MathPlayer v-for="(player, key) in direPlayers" :key="key" :player="player" />
+          <MathPlayer
+            v-for="(player, key) in currentMatchStore.getDirePlayers()"
+            :key="key"
+            :player="player"
+          />
         </div>
       </Panel>
     </div>
