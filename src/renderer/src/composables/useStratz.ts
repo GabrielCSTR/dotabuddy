@@ -135,8 +135,8 @@ async function makeGraphQLGetPlayerBestHeroes(steamID3: number) {
 async function getRequestAPIStratz(query: string, variables?: object) {
   try {
     const stratzApi = 'https://api.stratz.com/graphql'
-    const bearerToken =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdWJqZWN0IjoiZDkzOTNmNWUtZWY0Yy00ZmQ4LWJiNWUtMjBjZGJlNWI0M2Q5IiwiU3RlYW1JZCI6IjcyMTgxNzQ5IiwibmJmIjoxNzIzNDc4NzI3LCJleHAiOjE3NTUwMTQ3MjcsImlhdCI6MTcyMzQ3ODcyNywiaXNzIjoiaHR0cHM6Ly9hcGkuc3RyYXR6LmNvbSJ9.TvEPjck33_z4mXzDwNddxgMQwWT_z6JcJZuj8nbC5OU'
+    const bearerToken = import.meta.env.RENDERER_VITE_STRATZ_KEY
+
     const response = await fetch(stratzApi, {
       method: 'POST',
       headers: {

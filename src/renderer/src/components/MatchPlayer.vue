@@ -213,17 +213,17 @@ const getFlagClass = (countryCode: string | undefined) => {
       <!-- Itens e Tempo -->
       <div class="bg-[#222] p-3 rounded-lg mt-2 flex items-center gap-2">
         <div
-          v-for="(key, index) in Object.keys(matchPlayerItems)
+          v-for="(skill, key) in Object.keys(matchPlayerItems)
             .filter((key) => key.startsWith('slot'))
             .slice(0, 6)"
-          :key="index"
+          :key="key"
           class="flex flex-col items-center"
         >
           <img
-            :src="`https://cdn.stratz.com/images/dota2/items/${matchPlayerItems[key].name.split('item_')[1]}.png`"
+            :src="`https://cdn.stratz.com/images/dota2/items/${matchPlayerItems[skill].name.split('item_')[1]}.png`"
             class="w-12 h-10 rounded-md"
           />
-          <p class="text-gray-400 text-xs">{{ matchPlayerItems[key].time }}</p>
+          <!-- <p class="text-gray-400 text-xs">{{ matchPlayerItems[key].time }}</p> -->
         </div>
       </div>
     </div>
