@@ -52,6 +52,9 @@ const fetchDotaData = async () => {
 onMounted(() => {
   fetchDotaData()
   // setInterval(fetchDotaData, 1000)
+  setTimeout(() => {
+    isComponentLoaded.value = true
+  }, 2000) // 2000ms = 2 seconds
 })
 </script>
 <template>
@@ -91,6 +94,7 @@ onMounted(() => {
         </template>
         <div class="flex flex-col w-full h-full gap-4">
           <MathPlayer
+            v-if="isComponentLoaded"
             v-for="(player, key) in currentMatchStore.getRadiantPlayers()"
             :key="key"
             :player="player"
@@ -107,6 +111,7 @@ onMounted(() => {
           </div>
         </template>
         <MathPlayer
+          v-if="isComponentLoaded"
           v-for="(player, key) in currentMatchStore.getDirePlayers()"
           :key="key"
           :player="player"
