@@ -5,7 +5,7 @@ const versions = reactive({ ...window.electron.process.versions })
 </script>
 
 <template>
-  <ul class="versions text-white">
+  <ul class="versions text-gray-200">
     <li class="electron-version squada-one-regular">Electron v{{ versions.electron }}</li>
     <li class="chrome-version squada-one-regular">Chromium v{{ versions.chrome }}</li>
     <li class="node-version squada-one-regular">Node v{{ versions.node }}</li>

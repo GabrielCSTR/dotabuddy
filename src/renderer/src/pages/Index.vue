@@ -8,7 +8,7 @@ import Versions from '@renderer/components/Versions.vue'
     Your browser does not support the video tag.
   </video>
   <div
-    class="flex flex-col items-center absolute top-3/4 left-1/2 transform translate-x-[-50%] translate-y-[-50%] text-white"
+    class="flex flex-col items-center absolute top-3/4 left-1/2 transform translate-x-[-50%] translate-y-[-50%] text-gray-200"
   >
     <h1
       class="text-8xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"

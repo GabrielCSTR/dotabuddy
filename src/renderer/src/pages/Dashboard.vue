@@ -1,5 +1,11 @@
 <script lang="ts" setup>
 import Barwindow from '@renderer/components/BarWindow.vue'
+import useStractz from '@renderer/composables/useStratz'
+import { useHeroStore } from '@renderer/stores/hero-store'
+import { onMounted } from 'vue'
+const { makeGraphQLHerosRequest } = useStractz()
+const heroStore = useHeroStore()
+
 import { ref } from 'vue'
 
 const menu = ref([
@@ -7,6 +13,14 @@ const menu = ref([
   { route: '/app/match-history', label: 'Match history', icon: 'pi pi-chart-line' },
   { route: '/app/settings', label: 'Settings', icon: 'pi pi-cog' }
 ])
+
+const fetchHeroData = async () => {
+  const heroes = await makeGraphQLHerosRequest()
+  heroStore.addHeroes(heroes['heroes'])
+}
+onMounted(async () => {
+  await fetchHeroData()
+})
 </script>
 
 <template>

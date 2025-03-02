@@ -9,6 +9,7 @@ import {
   normalizeItemName,
   normalizeItemNameImage
 } from '@renderer/utils'
+import PlayerLastmatch from './PlayerLastmatch.vue'
 
 const { makeGraphQLProfileRequest } = useStractz()
 
@@ -34,7 +35,7 @@ onMounted(async () => {
     // get player informations from stratz
     const openStratzPlayer = await makeGraphQLProfileRequest(+props.player.accountid)
     matchPlayerData.value = openStratzPlayer?.player
-    // console.log('OPEN STRATZ PLAYER', matchPlayerData.value)
+    console.log('OPEN STRATZ PLAYER', matchPlayerData.value)
   }
 
   // get hero skills
@@ -177,7 +178,9 @@ const getFlagClass = (countryCode: string | undefined) => {
       <div class="grid grid-cols-2 gap-2">
         <!-- Player Stats -->
         <div class="flex flex-col rounded-lg">
-          <p class="font-semibold squada-one-regular text-lg uppercase">Match Hero Info</p>
+          <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
+            Match Hero Info
+          </p>
           <div class="flex h-full bg-[#222] p-4 rounded-lg mt-2">
             <!-- Hero Image -->
             <div class="flex flex-col">
@@ -222,7 +225,7 @@ const getFlagClass = (countryCode: string | undefined) => {
                     }"
                   ></div>
                   <p
-                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-white text-lg text-center"
+                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-gray-200 text-lg text-center"
                   >
                     {{ matchPlayerHero?.health }} / {{ matchPlayerHero?.max_health }}
                   </p>
@@ -237,7 +240,7 @@ const getFlagClass = (countryCode: string | undefined) => {
                     }"
                   ></div>
                   <p
-                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-white text-lg text-center"
+                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-gray-200 text-lg text-center"
                   >
                     {{ matchPlayerHero?.mana }} / {{ matchPlayerHero?.max_mana }}
                   </p>
@@ -248,7 +251,7 @@ const getFlagClass = (countryCode: string | undefined) => {
             <!-- Hero INFORMATIONS -->
             <div class="flex flex-col gap-2">
               <!--  HERO INFO 01 -->
-              <div class="m-2 mt-4 text-white">
+              <div class="m-2 mt-4 text-gray-200">
                 <p class="font-semibold squada-one-regular text-3xl">
                   {{ normalizeHeroName(matchPlayerHero?.name!) }}
                 </p>
@@ -261,7 +264,9 @@ const getFlagClass = (countryCode: string | undefined) => {
               </div>
 
               <div class="flex flex-col w-full m-2 rounded-lg gap-1">
-                <p class="font-semibold squada-one-regular text-lg uppercase">Basic Stats</p>
+                <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
+                  Basic Stats
+                </p>
                 <div class="bg-[#222] rounded-lg">
                   <div class="flex w-full h-full items-center justify-between gap-2">
                     <div class="flex flex-col">
@@ -330,7 +335,7 @@ const getFlagClass = (countryCode: string | undefined) => {
 
           <!-- Items -->
           <div class="bg-[#222] p-2 rounded-lg mt-2 flex flex-col gap-2">
-            <p class="font-semibold squada-one-regular text-lg uppercase">Items</p>
+            <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">Items</p>
             <div class="flex w-full h-full gap-2">
               <div
                 v-for="(skill, key) in Object.keys(matchPlayerItems)
@@ -351,44 +356,11 @@ const getFlagClass = (countryCode: string | undefined) => {
         </div>
 
         <div class="flex flex-col rounded-lg">
-          <p class="font-semibold squada-one-regular text-lg uppercase">Player Stats</p>
+          <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
+            Player Stats
+          </p>
           <div class="bg-[#222] p-4 rounded-lg mt-2">
-            <div class="flex w-72 h-full items-center justify-between gap-2">
-              <div class="flex flex-col">
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Kills: {{ player.kills }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Deaths: {{ player.deaths }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  GPM: {{ player.gpm }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  XPM: {{ player.xpm }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  LH: {{ player.last_hits }}
-                </p>
-              </div>
-              <div class="flex flex-col">
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Assists: {{ player.assists }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  KDA: {{ player.kills }} / {{ player.deaths }} / {{ player.assists }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Denies: {{ player.denies }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Level: {{ matchPlayerHero?.level }}
-                </p>
-                <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                  Net Worth: {{ player.net_worth }}
-                </p>
-              </div>
-            </div>
+            <PlayerLastmatch :matches="matchPlayerData?.matches" />
           </div>
         </div>
       </div>

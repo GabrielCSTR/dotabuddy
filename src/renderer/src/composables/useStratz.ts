@@ -89,7 +89,7 @@ async function makeGraphQLProfileRequest(steamID3: number) {
       matches( request: {
         isParsed: true
         gameModeIds: [1,22]
-        take: 5
+        take: 10
         playerList: SINGLE
       }) {
         id
@@ -125,7 +125,8 @@ async function makeGraphQLHerosRequest() {
     }
   }
   `
-  return await getRequestAPIStratz(query)
+  const response = await getRequestAPIStratz(query)
+  return response?.constants || null
 }
 
 async function makeGraphQLGetPlayerBestHeroes(steamID3: number) {

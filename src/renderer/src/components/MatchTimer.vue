@@ -32,7 +32,7 @@ const winChanceClass = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full items-center justify-center rounded-lg text-white">
+  <div class="flex w-full items-center justify-center rounded-lg text-gray-200">
     <div class="absolute left-0 p-5 text-base">
       <div>
         <span class="text-gray-400 text-base squada-one-regular uppercase">Map Status: </span>
