@@ -34,7 +34,8 @@ function createWindow(): void {
       nodeIntegration: true,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
       sandbox: false
-    }
+    },
+    icon: join(__dirname, '../../resources/logo.png')
   })
 
   if (is.dev) {

@@ -327,3 +327,5 @@ export interface IPlayerSummary {
   steamAccount: SteamAccount
   matches: any[]
 }
+
+export const [RADIANT, DIRE] = ['team2', 'team3']

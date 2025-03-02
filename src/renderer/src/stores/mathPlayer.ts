@@ -63,10 +63,15 @@ export const useCurrentMatchStore = defineStore('match-player', {
       return this.direItems
     },
     clear() {
+      this.isMatchRunning = false
       this.radiantPlayers = []
       this.direPlayers = []
       this.radiantHeroes = []
       this.direHeroes = []
+      this.radiantSkills = []
+      this.direSkills = []
+      this.radiantItems = []
+      this.direItems = []
     }
   }
 })

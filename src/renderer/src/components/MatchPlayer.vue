@@ -173,57 +173,238 @@ const getFlagClass = (countryCode: string | undefined) => {
     </template>
 
     <div class="bg-[#111] p-4 rounded-lg shadow-md w-full">
-      <div class="flex items-center bg-[#222] p-4 rounded-lg mt-2">
-        <!-- Hero Image -->
-        <img
-          v-if="matchPlayerHero"
-          :src="`http://cdn.dota2.com/apps/dota2/images/heroes/${String(matchPlayerHero?.name).split('npc_dota_hero_')[1]}_lg.png`"
-          class="w-24 h-12 rounded-lg shadow-md"
-        />
-        <!--  Hero Name -->
-        <div class="ml-4 text-white">
-          <p class="font-semibold squada-one-regular text-lg">
-            {{
-              String(matchPlayerHero?.name)
-                .split('npc_dota_hero_')[1]
-                .split('_')
-                .join(' ')
-                .toLocaleUpperCase()
-            }}
-          </p>
-          <p class="text-gray-400 squada-one-regular text-lg">
-            KDA: {{ player.kills }} / {{ player.assists }} / {{ player.deaths }}
-          </p>
+      <div class="grid grid-cols-2 gap-2">
+        <!-- Player Stats -->
+        <div class="flex flex-col rounded-lg">
+          <p class="font-semibold squada-one-regular text-lg uppercase">Hero Info</p>
+          <div class="flex h-full bg-[#222] p-4 rounded-lg mt-2">
+            <!-- Hero Image -->
+            <div class="flex flex-col">
+              <OverlayBadge
+                v-tooltip="
+                  `NAME: ${String(matchPlayerHero?.name)
+                    .split('npc_dota_hero_')[1]
+                    .split('_')
+                    .join(' ')
+                    .toLocaleUpperCase()}\nLEVEL: ${matchPlayerHero?.level}`
+                "
+                :value="matchPlayerHero?.level"
+                severity="warn"
+                size="large"
+              >
+                <div :class="`w-56 h-[220px] rounded-l-r border-2 border-gray-700 bg-[#222]`">
+                  <video
+                    class="w-full min-h-full"
+                    :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${String(matchPlayerHero?.name).split('npc_dota_hero_')[1]}.png`"
+                    autoplay
+                    preload="auto"
+                    loop
+                    playsinline
+                  >
+                    <source
+                      type='video/mp4; codecs="hvc1"'
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${String(matchPlayerHero?.name).split('npc_dota_hero_')[1]}.mov`"
+                    />
+                    <source
+                      type="video/webm"
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${String(matchPlayerHero?.name).split('npc_dota_hero_')[1]}.webm`"
+                    />
+                    <img
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${String(matchPlayerHero?.name).split('npc_dota_hero_')[1]}.png`"
+                    />
+                  </video>
+                </div>
+              </OverlayBadge>
+              <!-- Health and Mana -->
+              <div class="flex h-5 bg-green-600">
+                <div class="relative h-full w-full">
+                  <div
+                    class="h-full bg-green-400"
+                    :style="{
+                      width: `${((matchPlayerHero?.health ?? 0) / (matchPlayerHero?.max_health ?? 1)) * 100}%`
+                    }"
+                  ></div>
+                  <p
+                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-white text-lg text-center"
+                  >
+                    {{ matchPlayerHero?.health }} / {{ matchPlayerHero?.max_health }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex h-5 bg-blue-600">
+                <div class="relative h-full w-full">
+                  <div
+                    class="h-full bg-blue-400"
+                    :style="{
+                      width: `${((matchPlayerHero?.mana ?? 0) / (matchPlayerHero?.max_mana ?? 1)) * 100}%`
+                    }"
+                  ></div>
+                  <p
+                    class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-white text-lg text-center"
+                  >
+                    {{ matchPlayerHero?.mana }} / {{ matchPlayerHero?.max_mana }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero INFORMATIONS -->
+            <div class="flex flex-col gap-2">
+              <!--  HERO INFO 01 -->
+              <div class="ml-5 mt-4 text-white">
+                <p class="font-semibold squada-one-regular text-3xl">
+                  {{
+                    String(matchPlayerHero?.name)
+                      .split('npc_dota_hero_')[1]
+                      .split('_')
+                      .join(' ')
+                      .toLocaleUpperCase()
+                  }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg">
+                  K/D/A: {{ player.kills }} / {{ player.deaths }} / {{ player.assists }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg">
+                  LH: {{ player.last_hits }} | DN: {{ player.denies }}
+                </p>
+              </div>
+
+              <div class="flex flex-col rounded-lg">
+                <p class="ml-5 font-semibold squada-one-regular text-lg uppercase">Basic Stats</p>
+                <div class="bg-[#222] ml-5 rounded-lg">
+                  <div class="flex w-72 h-full items-center justify-between gap-2">
+                    <div class="flex flex-col">
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        GPM: {{ player.gpm }}
+                      </p>
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        XPM: {{ player.xpm }}
+                      </p>
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        Kill Streak: {{ player.kill_streak }}
+                      </p>
+                    </div>
+                    <div class="flex flex-col">
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        Hero Damage: {{ player.hero_damage }}
+                      </p>
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        Smoked: {{ matchPlayerHero?.smoked ? 'Yes' : 'No' }}
+                      </p>
+                      <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                        Stacks: {{ player.camps_stacked }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- HERO INFO 02 -->
+              <!-- <div class="ml-auto mt-4">
+                <img
+                v-for="(ability, key) in Object.values(matchHeroSkills).slice(0, 4)"
+                :key="key"
+                :src="`https://cdn.stratz.com/images/dota2/abilities/${ability.name}.png`"
+                class="w-8 h-8"
+              />
+                <div class="flex flex-col">
+                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                    Damage: {{ player.hero_damage }}
+                  </p>
+                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                    Gold: {{ player.gold }}
+                  </p>
+                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                    Tower Damage: {{ player.tower_damage }}
+                  </p>
+                </div>
+              </div> -->
+            </div>
+
+            <!-- Talents -->
+            <!-- <img src="@renderer/assets/talents.svg" class="w-6 h-6 ml-2" /> -->
+
+            <div class="absolute left-0 bottom-0 right-0 w-full h-full pointer-events-none">
+              <div
+                class="absolute w-full h-full"
+                style="
+                  background: linear-gradient(
+                    rgba(0, 0, 0, 0) 70%,
+                    rgba(0, 0, 0, 0.733) 100%,
+                    rgb(0, 0, 0) 100%
+                  );
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- Items -->
+          <div class="bg-[#222] p-2 rounded-lg mt-2 flex flex-col gap-2">
+            <p class="font-semibold squada-one-regular text-lg uppercase">Items</p>
+            <div class="flex w-full h-full gap-2">
+              <div
+                v-for="(skill, key) in Object.keys(matchPlayerItems)
+                  .filter((key) => key.startsWith('slot'))
+                  .slice(0, 6)"
+                :key="key"
+                v-tooltip.top="
+                  String(matchPlayerItems[skill].name)
+                    .split('item_')[1]
+                    .split('_')
+                    .join(' ')
+                    .toLocaleUpperCase()
+                "
+                class="flex flex-col cursor-pointer"
+              >
+                <img
+                  :src="`https://cdn.stratz.com/images/dota2/items/${matchPlayerItems[skill].name.split('item_')[1]}.png`"
+                  class="w-12 h-10 rounded-md"
+                />
+                <!-- <p class="text-gray-400 text-xs">{{ matchPlayerItems[key].time }}</p> -->
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Hero Skills -->
-        <div class="flex items-center ml-auto gap-1">
-          <img
-            v-for="(ability, key) in Object.values(matchHeroSkills).slice(0, 4)"
-            :key="key"
-            :src="`https://cdn.stratz.com/images/dota2/abilities/${ability.name}.png`"
-            class="w-8 h-8"
-          />
-        </div>
-
-        <!-- Talents -->
-        <!-- <img src="@renderer/assets/talents.svg" class="w-6 h-6 ml-2" /> -->
-      </div>
-
-      <!-- Itens e Tempo -->
-      <div class="bg-[#222] p-3 rounded-lg mt-2 flex items-center gap-2">
-        <div
-          v-for="(skill, key) in Object.keys(matchPlayerItems)
-            .filter((key) => key.startsWith('slot'))
-            .slice(0, 6)"
-          :key="key"
-          class="flex flex-col items-center"
-        >
-          <img
-            :src="`https://cdn.stratz.com/images/dota2/items/${matchPlayerItems[skill].name.split('item_')[1]}.png`"
-            class="w-12 h-10 rounded-md"
-          />
-          <!-- <p class="text-gray-400 text-xs">{{ matchPlayerItems[key].time }}</p> -->
+        <div class="flex flex-col rounded-lg">
+          <p class="font-semibold squada-one-regular text-lg uppercase">Player Stats</p>
+          <div class="bg-[#222] p-4 rounded-lg mt-2">
+            <div class="flex w-72 h-full items-center justify-between gap-2">
+              <div class="flex flex-col">
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Kills: {{ player.kills }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Deaths: {{ player.deaths }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  GPM: {{ player.gpm }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  XPM: {{ player.xpm }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  LH: {{ player.last_hits }}
+                </p>
+              </div>
+              <div class="flex flex-col">
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Assists: {{ player.assists }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  KDA: {{ player.kills }} / {{ player.deaths }} / {{ player.assists }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Denies: {{ player.denies }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Level: {{ matchPlayerHero?.level }}
+                </p>
+                <p class="text-gray-400 squada-one-regular text-lg uppercase">
+                  Net Worth: {{ player.net_worth }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

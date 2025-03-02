@@ -6,7 +6,7 @@ const router = useRouter()
 
 // onMounted(() => {
 //   setTimeout(() => {
-//     router.push({ name: 'Dashboard' })
+//     router.push({ name: 'app-current-match' })
 //   }, 25000)
 // })
 </script>

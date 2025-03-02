@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { Dota2Events } from '@renderer/types'
+import { DIRE, Dota2Events, RADIANT } from '@renderer/types'
 import { useCurrentMatchStore } from '@renderer/stores/mathPlayer'
 
 import MatchTimer from '@renderer/components/MatchTimer.vue'
@@ -12,34 +12,39 @@ const currentMatchStore = useCurrentMatchStore()
 
 const gameState = ref<Dota2Events>()
 const isMatchRunning = ref(false)
+const isComponentLoaded = ref(false)
 
 const fetchDotaData = async () => {
   gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data')
   isMatchRunning.value =
-    gameState.value?.map.game_state == 'DOTA_GAMERULES_STATE_PRE_GAME' ||
-    gameState.value?.map.game_state == 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS'
+    gameState.value?.map?.game_state == 'DOTA_GAMERULES_STATE_PRE_GAME' ||
+    gameState.value?.map?.game_state == 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS'
 
   if (gameState.value && isMatchRunning.value) {
     console.log('GAME STATE', gameState.value)
 
     currentMatchStore.addRadiantPlayer(
-      gameState.value.player?.team2 as unknown as Dota2Events['player']
+      gameState.value.player?.[RADIANT] as unknown as Dota2Events['player']
     )
     currentMatchStore.addDirePlayer(
-      gameState.value.player?.team3 as unknown as Dota2Events['player']
+      gameState.value.player?.[DIRE] as unknown as Dota2Events['player']
     )
-    currentMatchStore.addRadiantHero(gameState.value.hero?.team2 as unknown as Dota2Events['hero'])
-    currentMatchStore.addDireHero(gameState.value.hero?.team3 as unknown as Dota2Events['hero'])
-    currentMatchStore.addRadiantSkills(
-      gameState.value?.abilities?.team2 as unknown as Dota2Events['abilities']
+    currentMatchStore.addRadiantHero(
+      gameState.value.hero?.[RADIANT] as unknown as Dota2Events['hero']
     )
-    currentMatchStore.addDireSkills(
-      gameState.value?.abilities?.team3 as unknown as Dota2Events['abilities']
-    )
+    currentMatchStore.addDireHero(gameState.value.hero?.[DIRE] as unknown as Dota2Events['hero'])
+    // currentMatchStore.addRadiantSkills(
+    //   gameState.value?.abilities?[RADIANT] as unknown as Dota2Events['abilities']
+    // )
+    // currentMatchStore.addDireSkills(
+    //   gameState.value?.abilities?[DIRE] as unknown as Dota2Events['abilities']
+    // )
     currentMatchStore.addRadiantItems(
-      gameState.value?.items?.team2 as unknown as Dota2Events['items']
+      gameState.value?.items?.[RADIANT] as unknown as Dota2Events['items']
     )
-    currentMatchStore.addDireItems(gameState.value?.items?.team3 as unknown as Dota2Events['items'])
+    currentMatchStore.addDireItems(
+      gameState.value?.items?.[DIRE] as unknown as Dota2Events['items']
+    )
     currentMatchStore.isMatchRunning = true
   }
 }
@@ -61,7 +66,15 @@ onMounted(() => {
     </div>
 
     <div v-if="!isMatchRunning" class="flex flex-col w-full h-full items-center justify-center p-4">
-      <i class="pi pi-spin pi-spinner text-amber-800 text-7xl"></i>
+      <div class="flex flex-col w-full h-full items-center justify-center p-4">
+        <i class="pi pi-spin pi-spinner-dotted text-amber-800 text-7xl"></i>
+      </div>
+      <h1
+        class="animate-fadein animate-once animate-duration-1000 text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
+      >
+        <i class="pi pi-wifi text-amber-800 text-4xl"></i>
+        Waiting for match to start...
+      </h1>
     </div>
 
     <MatchTimer v-if="isMatchRunning && gameState?.map" :map="gameState.map" />
@@ -93,14 +106,12 @@ onMounted(() => {
             <span class="font-bold text-2xl squada-one-regular uppercase">Dire</span>
           </div>
         </template>
-        <div class="flex flex-col w-full h-full gap-4">
-          <MathPlayer
-            v-for="(player, key) in currentMatchStore.getDirePlayers()"
-            :key="key"
-            :player="player"
-            :index="key"
-          />
-        </div>
+        <MathPlayer
+          v-for="(player, key) in currentMatchStore.getDirePlayers()"
+          :key="key"
+          :player="player"
+          :index="key"
+        />
       </Panel>
     </div>
   </div>
@@ -111,7 +122,6 @@ onMounted(() => {
 }
 :deep(.p-panel-content) {
   padding: 0px !important;
-  overflow-y: auto;
   max-height: 100%;
   margin-bottom: 15px !important;
 }
