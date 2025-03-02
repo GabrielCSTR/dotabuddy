@@ -1,3 +1,31 @@
+import axios from 'axios'
+
+async function getRequestAPIStratz(query: string, variables?: object, retries = 3) {
+  const stratzApi = 'https://api.stratz.com/graphql'
+  const bearerToken = import.meta.env.RENDERER_VITE_STRATZ_KEY
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.post(
+        stratzApi,
+        { query, variables },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${bearerToken}`
+          }
+        }
+      )
+      return response.data.data || null
+    } catch (error) {
+      console.error(`GraphQL Error (attempt ${attempt}):`, error)
+      if (attempt === retries) {
+        throw new Error('Max retries reached')
+      }
+    }
+  }
+}
+
 async function makeGraphQLProfileRequest(steamID3: number) {
   const query = `
   query playerInfo ($steamid: Long!)
@@ -130,26 +158,6 @@ async function makeGraphQLGetPlayerBestHeroes(steamID3: number) {
   }
 
   return await getRequestAPIStratz(query, variables)
-}
-
-async function getRequestAPIStratz(query: string, variables?: object) {
-  try {
-    const stratzApi = 'https://api.stratz.com/graphql'
-    const bearerToken = import.meta.env.RENDERER_VITE_STRATZ_KEY
-
-    const response = await fetch(stratzApi, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${bearerToken}`
-      },
-      body: JSON.stringify({ query, variables })
-    })
-    const { data } = await response.json()
-    return data || null
-  } catch (error) {
-    console.error('GraphQL Error:', error)
-  }
 }
 
 export default function useStractz() {
