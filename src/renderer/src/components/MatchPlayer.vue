@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { IPlayerSummary, PlayerStats, IHero, IAbility } from '@renderer/types'
-import { ref, onMounted } from 'vue'
+import { IPlayerSummary, PlayerStats } from '@renderer/types'
+import { computed } from 'vue'
 import { useCurrentMatchStore } from '@renderer/stores'
-import useStractz from '@renderer/composables/useStratz'
 import {
   normalizeHeroName,
   normalizeHeroNameImage,
@@ -11,107 +10,109 @@ import {
 } from '@renderer/utils'
 import PlayerLastmatch from './PlayerLastmatch.vue'
 
-const { makeGraphQLProfileRequest } = useStractz()
-
 const props = defineProps<{
-  player: PlayerStats
-  index: string
+  playersData: { [key: string]: IPlayerSummary }
+  playersEvents: { [key: string]: PlayerStats }
 }>()
 
 const currentMatchStore = useCurrentMatchStore()
-const matchPlayerData = ref<IPlayerSummary>()
-const matchPlayerHero = ref<IHero>()
-const matchHeroSkills = ref<Record<string, Record<string, IAbility>>>({})
-const matchPlayerItems = ref<Record<string, { name: string; time: number }>>({})
 
-onMounted(async () => {
-  // get hero informations
+// Helper functions
+const getPlayerInfo = (steamid: string) => {
+  return Object.values(props.playersData).find(
+    (player) => String(player.steamAccountId) === steamid
+  )
+}
+
+const getPlayerHeroInfo = (index: number | string) => {
   const radiantHeroes = currentMatchStore.getRadiantHeroes()
   const direHeroes = currentMatchStore.getDireHeroes()
-  matchPlayerHero.value = radiantHeroes?.[props.index] || direHeroes?.[props.index]
+  return radiantHeroes?.[index] || direHeroes?.[index]
+}
 
-  // get player informations from opendota
-  if (!matchPlayerData.value) {
-    // get player informations from stratz
-    const openStratzPlayer = await makeGraphQLProfileRequest(+props.player.accountid)
-    matchPlayerData.value = openStratzPlayer?.player
-    console.log('OPEN STRATZ PLAYER', matchPlayerData.value)
-  }
-
-  // get hero skills
-  const heroSkills =
-    currentMatchStore.getRadiantSkills()?.[props.index] ||
-    currentMatchStore.getDireSkills()?.[props.index]
-  matchHeroSkills.value = heroSkills || {}
-
-  // get hero items
+const getPlayerHeroItems = (index: number | string) => {
   const heroItems =
-    currentMatchStore.getRadiantItems()?.[props.index] ||
-    currentMatchStore.getDireItems()?.[props.index]
-  matchPlayerItems.value = heroItems || {}
-
-  console.log('MATCH PLAYER DATA', props.player)
-})
+    currentMatchStore.getRadiantItems()?.[index] || currentMatchStore.getDireItems()?.[index]
+  return heroItems || {}
+}
 
 const getFlagClass = (countryCode: string | undefined) => {
-  if (!countryCode) return ''
-  return `fi fi-${countryCode.toLowerCase()}`
+  return countryCode ? `fi fi-${countryCode.toLowerCase()}` : ''
+}
+
+// Computed properties
+const playerHeroInfo = computed(() => (index: number | string) => getPlayerHeroInfo(index))
+const playerHeroItems = computed(() => (index: number | string) => getPlayerHeroItems(index))
+
+const tooltipContent = (player) => {
+  const playerInfo = getPlayerInfo(player.accountid)
+  return `
+    <div class="flex items-center space-x-2">
+      <img
+        src="${playerInfo?.steamAccount?.guild.guild?.logo}"
+        alt="Guild Avatar"
+        class="w-16 h-16"
+      />
+      <span class="font-bold text-lg">${playerInfo?.steamAccount?.guild.guild?.name}</span>
+    </div>
+  `
 }
 </script>
+
 <template>
-  <div
-    v-if="!currentMatchStore.isMatchRunning || !matchPlayerData"
-    class="flex flex-col w-full h-full items-center justify-center p-4"
+  <Panel
+    v-for="(player, index) in props.playersEvents"
+    :key="index"
+    class="flex flex-col w-full mt-2 relative"
+    toggleable
   >
-    <i class="pi pi-spin pi-spinner text-amber-800 text-5xl"></i>
-  </div>
-  <Panel v-else class="flex flex-col w-full mt-2 relative" toggleable>
     <template #header>
       <div class="flex items-center justify-between w-full gap-2">
-        <!-- Avatar + Flag + Nome + Rank Medal -->
+        <!-- Avatar + Flag + Name + Rank Medal -->
         <div class="flex items-center gap-2 relative">
-          <div class="w-[80px] h-[65px] relative">
-            <Avatar
-              v-tooltip="props.player?.name"
-              class="mr-2"
-              size="xlarge"
-              :image="matchPlayerData?.steamAccount?.avatar"
-              shape="circle"
-            />
+          <div class="w-[100px] h-20 relative">
+            <div class="avatar-container avatar-border">
+              <Avatar
+                v-tooltip.top="player?.name"
+                class="avatar avatar-border"
+                :image="getPlayerInfo(player.accountid)?.steamAccount?.avatar"
+              />
+            </div>
             <i
-              v-if="matchPlayerData?.steamAccount?.countryCode"
-              :class="getFlagClass(matchPlayerData?.steamAccount?.countryCode)"
-              class="-top-16 left-12"
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.countryCode"
+              :class="getFlagClass(getPlayerInfo(player.accountid)?.steamAccount?.countryCode)"
+              class="-top-20 left-20 rounded-sm absolute text-xl"
             ></i>
           </div>
 
           <div class="flex items-center justify-center gap-1">
-            <span class="font-bold mr-2"> {{ props.player?.name }} </span>
+            <span class="font-bold mr-2"> {{ player?.name }} </span>
             <span
-              v-if="matchPlayerData?.steamAccount?.guild?.guild"
-              v-tooltip.top="
-                `${matchPlayerData?.steamAccount?.guild?.guild?.name} - ${matchPlayerData?.steamAccount?.guild?.guild?.motd}`
-              "
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.guild?.guild"
+              v-tooltip.top="{
+                value: tooltipContent(player),
+                escape: false
+              }"
               class="font-bold guild"
             >
-              [{{ matchPlayerData?.steamAccount?.guild?.guild?.tag }}]
+              [{{ getPlayerInfo(player.accountid)?.steamAccount?.guild?.guild?.tag }}]
             </span>
             <img
-              v-if="matchPlayerData?.steamAccount?.proSteamAccount"
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.proSteamAccount"
               v-tooltip.top="'Pro player'"
               class="w-5 h-5"
               src="@renderer/assets/player_pro.svg"
               alt="player pro"
             />
             <img
-              v-if="matchPlayerData?.steamAccount?.isAnonymous"
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.isAnonymous"
               v-tooltip.top="'Player private'"
               class="w-5 h-5"
               src="@renderer/assets/player_private.svg"
               alt="player private"
             />
             <img
-              v-if="matchPlayerData?.steamAccount?.isDotaPlusSubscriber"
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.isDotaPlusSubscriber"
               v-tooltip.top="'Subscriber Dota Plus'"
               class="w-5 h-5"
               src="https://cdn.stratz.com/images/dota2/plus/logo.png"
@@ -125,47 +126,43 @@ const getFlagClass = (countryCode: string | undefined) => {
               v-tooltip.top="'Season Rank'"
               class="w-16 h-14"
               :src="
-                matchPlayerData?.steamAccount?.seasonRank === 80
+                getPlayerInfo(player.accountid)?.steamAccount?.seasonRank === 80
                   ? '/src/assets/ranks/medal_8.png'
-                  : `/src/assets/ranks/medal_${Math.floor(matchPlayerData?.steamAccount?.seasonRank / 10)}`
+                  : `/src/assets/ranks/medal_${Math.floor((getPlayerInfo(player.accountid)?.steamAccount?.seasonRank ?? 0) / 10)}`
               "
               alt="medal"
             />
             <p
-              v-if="matchPlayerData?.steamAccount?.seasonLeaderboardRank"
+              v-if="getPlayerInfo(player.accountid)?.steamAccount?.seasonLeaderboardRank"
               class="absolute ml-4 mt-9 text-xl p-1 squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
             >
-              {{ matchPlayerData?.steamAccount?.seasonLeaderboardRank }}
+              {{ getPlayerInfo(player.accountid)?.steamAccount?.seasonLeaderboardRank }}
             </p>
           </div>
         </div>
 
-        <!-- Links do Perfil -->
+        <!-- Profile Links -->
         <div class="flex items-center gap-2 min-w-52 justify-end mr-3">
           <a
             class="link"
-            :href="'https://steamcommunity.com/profiles/' + props.player?.steamid"
+            :href="'https://steamcommunity.com/profiles/' + player.steamid"
             target="_blank"
           >
             <img class="w-5 h-5" alt="steam icon" src="@renderer/assets/steam_icon.svg" />
           </a>
-          <a
-            class="link"
-            :href="`https://stratz.com/players/${props.player?.steamid}`"
-            target="_blank"
-          >
+          <a class="link" :href="`https://stratz.com/players/${player.accountid}`" target="_blank">
             <img class="h-8 w-8 p-1 rounded-lg" src="@renderer/assets/stratz.png" alt="Ícone" />
           </a>
           <a
             class="link"
-            :href="'https://www.opendota.com/players/' + props.player?.steamid"
+            :href="'https://www.opendota.com/players/' + player.accountid"
             target="_blank"
           >
             <img class="w-5 h-5" alt="opendota icon" src="@renderer/assets/opendota.png" />
           </a>
           <a
             class="link"
-            :href="'https://www.dotabuff.com/players/' + props.player?.steamid"
+            :href="'https://www.dotabuff.com/players/' + player.accountid"
             target="_blank"
           >
             <img class="w-5 h-5" alt="dotabuff icon" src="@renderer/assets/dotabuff.png" />
@@ -181,21 +178,23 @@ const getFlagClass = (countryCode: string | undefined) => {
           <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
             Match Hero Info
           </p>
+
+          <!-- Current Hero Info -->
           <div class="flex h-full bg-[#222] p-4 rounded-lg mt-2">
             <!-- Hero Image -->
             <div class="flex flex-col">
               <OverlayBadge
                 v-tooltip="
-                  `NAME: ${normalizeHeroName(matchPlayerHero?.name!)}\nLEVEL: ${matchPlayerHero?.level}`
+                  `NAME: ${normalizeHeroName(playerHeroInfo(index)?.name!)}\nLEVEL: ${playerHeroInfo(index)?.level}`
                 "
-                :value="matchPlayerHero?.level"
+                :value="playerHeroInfo(index)?.level"
                 severity="warn"
                 size="large"
               >
                 <div :class="`w-56 h-[220px] rounded-l-r border-2 border-gray-700 bg-[#222]`">
                   <video
                     class="w-full min-h-full"
-                    :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(matchPlayerHero?.name!)}.png`"
+                    :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.png`"
                     autoplay
                     preload="auto"
                     loop
@@ -203,14 +202,14 @@ const getFlagClass = (countryCode: string | undefined) => {
                   >
                     <source
                       type='video/mp4; codecs="hvc1"'
-                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(matchPlayerHero?.name!)}.mov`"
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.mov`"
                     />
                     <source
                       type="video/webm"
-                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(matchPlayerHero?.name!)}.webm`"
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.webm`"
                     />
                     <img
-                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(matchPlayerHero?.name!)}.png`"
+                      :src="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.png`"
                     />
                   </video>
                 </div>
@@ -221,13 +220,14 @@ const getFlagClass = (countryCode: string | undefined) => {
                   <div
                     class="h-full bg-green-400"
                     :style="{
-                      width: `${((matchPlayerHero?.health ?? 0) / (matchPlayerHero?.max_health ?? 1)) * 100}%`
+                      width: `${((playerHeroInfo(index)?.health ?? 0) / (playerHeroInfo(index)?.max_health ?? 1)) * 100}%`
                     }"
                   ></div>
                   <p
                     class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-gray-200 text-lg text-center"
                   >
-                    {{ matchPlayerHero?.health }} / {{ matchPlayerHero?.max_health }}
+                    {{ playerHeroInfo(index)?.health }} /
+                    {{ playerHeroInfo(index)?.max_health }}
                   </p>
                 </div>
               </div>
@@ -236,24 +236,24 @@ const getFlagClass = (countryCode: string | undefined) => {
                   <div
                     class="h-full bg-blue-400"
                     :style="{
-                      width: `${((matchPlayerHero?.mana ?? 0) / (matchPlayerHero?.max_mana ?? 1)) * 100}%`
+                      width: `${((playerHeroInfo(index)?.mana ?? 0) / (playerHeroInfo(index)?.max_mana ?? 1)) * 100}%`
                     }"
                   ></div>
                   <p
                     class="absolute -top-[2px] left-0 right-0 bottom-0 squada-one-regular text-gray-200 text-lg text-center"
                   >
-                    {{ matchPlayerHero?.mana }} / {{ matchPlayerHero?.max_mana }}
+                    {{ playerHeroInfo(index)?.mana }} / {{ playerHeroInfo(index)?.max_mana }}
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Hero INFORMATIONS -->
+            <!-- Hero Information -->
             <div class="flex flex-col gap-2">
-              <!--  HERO INFO 01 -->
+              <!-- Hero Info -->
               <div class="m-2 mt-4 text-gray-200">
                 <p class="font-semibold squada-one-regular text-3xl">
-                  {{ normalizeHeroName(matchPlayerHero?.name!) }}
+                  {{ normalizeHeroName(playerHeroInfo(index)?.name!) }}
                 </p>
                 <p class="text-gray-400 squada-one-regular text-lg">
                   K/D/A: {{ player.kills }} / {{ player.deaths }} / {{ player.assists }}
@@ -285,7 +285,7 @@ const getFlagClass = (countryCode: string | undefined) => {
                         Hero Damage: {{ player.hero_damage }}
                       </p>
                       <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                        Smoked: {{ matchPlayerHero?.smoked ? 'Yes' : 'No' }}
+                        Smoked: {{ playerHeroInfo(index)?.smoked ? 'Yes' : 'No' }}
                       </p>
                       <p class="text-gray-400 squada-one-regular text-lg uppercase">
                         Stacks: {{ player.camps_stacked }}
@@ -294,42 +294,6 @@ const getFlagClass = (countryCode: string | undefined) => {
                   </div>
                 </div>
               </div>
-              <!-- HERO INFO 02 -->
-              <!-- <div class="ml-auto mt-4">
-                <img
-                v-for="(ability, key) in Object.values(matchHeroSkills).slice(0, 4)"
-                :key="key"
-                :src="`https://cdn.stratz.com/images/dota2/abilities/${ability.name}.png`"
-                class="w-8 h-8"
-              />
-                <div class="flex flex-col">
-                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                    Damage: {{ player.hero_damage }}
-                  </p>
-                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                    Gold: {{ player.gold }}
-                  </p>
-                  <p class="text-gray-400 squada-one-regular text-lg uppercase">
-                    Tower Damage: {{ player.tower_damage }}
-                  </p>
-                </div>
-              </div> -->
-            </div>
-
-            <!-- Talents -->
-            <!-- <img src="@renderer/assets/talents.svg" class="w-6 h-6 ml-2" /> -->
-
-            <div class="absolute left-0 bottom-0 right-0 w-full h-full pointer-events-none">
-              <div
-                class="absolute w-full h-full"
-                style="
-                  background: linear-gradient(
-                    rgba(0, 0, 0, 0) 70%,
-                    rgba(0, 0, 0, 0.733) 100%,
-                    rgb(0, 0, 0) 100%
-                  );
-                "
-              ></div>
             </div>
           </div>
 
@@ -338,18 +302,17 @@ const getFlagClass = (countryCode: string | undefined) => {
             <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">Items</p>
             <div class="flex w-full h-full gap-2">
               <div
-                v-for="(skill, key) in Object.keys(matchPlayerItems)
+                v-for="(item, key) in Object.keys(playerHeroItems(index))
                   .filter((key) => key.startsWith('slot'))
                   .slice(0, 6)"
                 :key="key"
-                v-tooltip.top="normalizeItemName(matchPlayerItems[skill].name!)"
+                v-tooltip.top="normalizeItemName(playerHeroItems(index)[item].name!)"
                 class="flex flex-col cursor-pointer"
               >
                 <img
-                  :src="`https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(matchPlayerItems[skill].name)}.png`"
+                  :src="`https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(playerHeroItems(index)[item].name)}.png`"
                   class="w-12 h-10 rounded-md"
                 />
-                <!-- <p class="text-gray-400 text-xs">{{ matchPlayerItems[key].time }}</p> -->
               </div>
             </div>
           </div>
@@ -359,19 +322,21 @@ const getFlagClass = (countryCode: string | undefined) => {
           <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
             Player Stats
           </p>
-          <div class="bg-[#222] p-4 rounded-lg mt-2">
-            <PlayerLastmatch :matches="matchPlayerData?.matches" />
+          <div
+            v-if="getPlayerInfo(player.accountid)?.matches"
+            class="bg-[#222] p-4 rounded-lg mt-2"
+          >
+            <PlayerLastmatch :matches="getPlayerInfo(player.accountid)?.matches ?? []" />
           </div>
+          <p v-else>No matches found</p>
         </div>
       </div>
     </div>
   </Panel>
 </template>
+
 <style scoped>
 .guild {
-  -webkit-letter-spacing: 0.0083em;
-  -moz-letter-spacing: 0.0083em;
-  -ms-letter-spacing: 0.0083em;
   letter-spacing: 0.0083em;
   font-size: 18px;
   line-height: 24px;
@@ -381,5 +346,26 @@ const getFlagClass = (countryCode: string | undefined) => {
   vertical-align: middle;
   margin-left: 5px;
   cursor: help;
+}
+.avatar-container {
+  background: rgb(180, 119, 95);
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+}
+.avatar {
+  width: 100px;
+  height: 80px;
+}
+.avatar-border {
+  clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  border: 2px solid rgb(180, 119, 95);
+}
+.avatar-border img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 </style>

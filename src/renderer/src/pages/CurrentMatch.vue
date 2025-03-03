@@ -1,67 +1,85 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import { DIRE, Dota2Events, RADIANT } from '@renderer/types'
+import { ref, onMounted, computed, watch } from 'vue'
+import { DIRE, RADIANT, Dota2Events, IPlayerSummary } from '@renderer/types'
 import { useCurrentMatchStore } from '@renderer/stores/mathPlayer'
+import useStratz from '@renderer/composables/useStratz'
 
 import MatchTimer from '@renderer/components/MatchTimer.vue'
 import IconRadiant from '@renderer/components/icons/IconRadiant.vue'
 import IconDire from '@renderer/components/icons/IconDire.vue'
-import MathPlayer from '@renderer/components/MatchPlayer.vue'
+import MatchPlayer from '@renderer/components/MatchPlayer.vue'
 
 const currentMatchStore = useCurrentMatchStore()
+const { makeGraphQLProfileRequest } = useStratz()
 
-const gameState = ref<Dota2Events>()
+const gameState = ref<Dota2Events | null>(null)
 const isMatchRunning = ref(false)
-const isComponentLoaded = ref(false)
+const activeLobbyPlayerIds = ref<number[]>([])
+const matchPlayerData = ref<Record<string, IPlayerSummary>>({})
 
-const fetchDotaData = async () => {
+// Computed properties
+const radiantPlayers = computed(() => currentMatchStore.getRadiantPlayers() || {})
+const direPlayers = computed(() => currentMatchStore.getDirePlayers() || {})
+
+// Watchers
+watch(gameState, async (newValue) => {
+  if (newValue) {
+    await fetchStratzData()
+  }
+})
+
+// Functions
+const updateMatchState = async () => {
   gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data')
-  isMatchRunning.value =
-    gameState.value?.map?.game_state == 'DOTA_GAMERULES_STATE_PRE_GAME' ||
-    gameState.value?.map?.game_state == 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS'
+  const gamePhase = gameState.value?.map?.game_state
+  isMatchRunning.value = [
+    'DOTA_GAMERULES_STATE_PRE_GAME',
+    'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS'
+  ].includes(gamePhase ?? '')
 
-  if (gameState.value && isMatchRunning.value) {
+  if (isMatchRunning.value && gameState.value) {
     console.log('GAME STATE', gameState.value)
-
-    currentMatchStore.addRadiantPlayer(
-      gameState.value.player?.[RADIANT] as unknown as Dota2Events['player']
-    )
-    currentMatchStore.addDirePlayer(
-      gameState.value.player?.[DIRE] as unknown as Dota2Events['player']
-    )
-    currentMatchStore.addRadiantHero(
-      gameState.value.hero?.[RADIANT] as unknown as Dota2Events['hero']
-    )
-    currentMatchStore.addDireHero(gameState.value.hero?.[DIRE] as unknown as Dota2Events['hero'])
-    // currentMatchStore.addRadiantSkills(
-    //   gameState.value?.abilities?[RADIANT] as unknown as Dota2Events['abilities']
-    // )
-    // currentMatchStore.addDireSkills(
-    //   gameState.value?.abilities?[DIRE] as unknown as Dota2Events['abilities']
-    // )
-    currentMatchStore.addRadiantItems(
-      gameState.value?.items?.[RADIANT] as unknown as Dota2Events['items']
-    )
-    currentMatchStore.addDireItems(
-      gameState.value?.items?.[DIRE] as unknown as Dota2Events['items']
-    )
-    currentMatchStore.isMatchRunning = true
+    setMatchData(gameState.value)
+    activeLobbyPlayerIds.value = [
+      ...Object.values(gameState.value.player?.[RADIANT] ?? {}).map((p) =>
+        parseInt((p as { accountid: string }).accountid)
+      ),
+      ...Object.values(gameState.value.player?.[DIRE] ?? {}).map((p) =>
+        parseInt((p as { accountid: string }).accountid)
+      )
+    ]
   }
 }
 
-onMounted(() => {
-  fetchDotaData()
-  // setInterval(fetchDotaData, 1000)
-  setTimeout(() => {
-    isComponentLoaded.value = true
-  }, 2000) // 2000ms = 2 seconds
+const setMatchData = (gameState: Dota2Events) => {
+  if (!gameState) return
+
+  currentMatchStore.addRadiantPlayer(gameState.player?.[RADIANT] as Dota2Events['player'])
+  currentMatchStore.addDirePlayer(gameState.player?.[DIRE] as Dota2Events['player'])
+  currentMatchStore.addRadiantHero(gameState.hero?.[RADIANT] as Dota2Events['hero'])
+  currentMatchStore.addDireHero(gameState.hero?.[DIRE] as Dota2Events['hero'])
+  currentMatchStore.addRadiantItems(gameState.items?.[RADIANT] as Dota2Events['items'])
+  currentMatchStore.addDireItems(gameState.items?.[DIRE] as Dota2Events['items'])
+
+  currentMatchStore.isMatchRunning = true
+}
+
+const fetchStratzData = async () => {
+  if (!isMatchRunning.value) return
+  matchPlayerData.value = await makeGraphQLProfileRequest(activeLobbyPlayerIds.value)
+  console.log('OPEN STRATZ PLAYER', matchPlayerData.value)
+}
+
+onMounted(async () => {
+  await updateMatchState()
 })
 </script>
+
 <template>
   <div class="flex flex-col w-full h-full items-center p-4">
-    <div class="w-full max-w-4xl items-center flex flex-col gap-4 mx-auto">
+    <div class="w-full max-w-4xl flex flex-col gap-4 items-center mx-auto">
       <h1
-        class="text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
+        class="text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
       >
         <i class="pi pi-sitemap text-amber-800 text-4xl"></i>
         CURRENT MATCH
@@ -69,11 +87,9 @@ onMounted(() => {
     </div>
 
     <div v-if="!isMatchRunning" class="flex flex-col w-full h-full items-center justify-center p-4">
-      <div class="flex flex-col w-full h-full items-center justify-center p-4">
-        <i class="pi pi-spin pi-spinner-dotted text-amber-800 text-7xl"></i>
-      </div>
+      <i class="pi pi-spin pi-spinner-dotted text-amber-800 text-7xl"></i>
       <h1
-        class="animate-fadein animate-once animate-duration-1000 text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 inline-block text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
+        class="animate-fadein text-5xl bg-gradient-to-r squada-one-regular uppercase from-amber-800 via-amber-700 to-amber-600 text-transparent bg-clip-text drop-shadow-lg shadow-amber-700"
       >
         <i class="pi pi-wifi text-amber-800 text-4xl"></i>
         Waiting for match to start...
@@ -84,39 +100,39 @@ onMounted(() => {
 
     <Divider type="solid" />
 
-    <div v-if="isMatchRunning" class="flex flex-col w-full h-full gap-4">
+    <div v-if="isMatchRunning && gameState?.map" class="flex flex-col w-full h-full gap-4">
       <Panel class="flex flex-col w-full radiant" toggleable>
         <template #header>
-          <div class="flex items-center radiant gap-2 radiant-shadown">
+          <div class="flex items-center gap-2 radiant-shadown">
             <IconRadiant />
             <span class="font-bold text-2xl squada-one-regular uppercase">Radiant</span>
           </div>
         </template>
-        <div class="flex flex-col w-full h-full gap-4">
-          <MathPlayer
-            v-if="isComponentLoaded"
-            v-for="(player, key) in currentMatchStore.getRadiantPlayers()"
-            :key="key"
-            :player="player"
-            :index="key"
-          />
+        <MatchPlayer
+          v-if="Object.keys(matchPlayerData).length && gameState?.player"
+          :players-data="matchPlayerData"
+          :players-events="radiantPlayers"
+        />
+        <div v-else class="flex flex-col w-full h-full items-center justify-center p-4">
+          <i class="pi pi-spin pi-spinner text-amber-800 text-5xl"></i>
         </div>
       </Panel>
 
       <Panel class="flex flex-col w-full dire mt-5" toggleable>
         <template #header>
-          <div class="flex items-center dire gap-2 dire-shadown">
+          <div class="flex items-center gap-2 dire-shadown">
             <IconDire />
             <span class="font-bold text-2xl squada-one-regular uppercase">Dire</span>
           </div>
         </template>
-        <MathPlayer
-          v-if="isComponentLoaded"
-          v-for="(player, key) in currentMatchStore.getDirePlayers()"
-          :key="key"
-          :player="player"
-          :index="key"
+        <MatchPlayer
+          v-if="Object.keys(matchPlayerData).length && gameState?.player"
+          :players-data="matchPlayerData"
+          :players-events="direPlayers"
         />
+        <div v-else class="flex flex-col w-full h-full items-center justify-center p-4">
+          <i class="pi pi-spin pi-spinner text-amber-800 text-5xl"></i>
+        </div>
       </Panel>
     </div>
   </div>

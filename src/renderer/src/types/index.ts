@@ -318,6 +318,7 @@ export interface SteamAccount {
 }
 
 export interface IPlayerSummary {
+  steamAccountId: number
   firstMatchDate: number
   matchCount: number
   winCount: number
@@ -326,6 +327,7 @@ export interface IPlayerSummary {
   simpleSummary: SimpleSummary
   steamAccount: SteamAccount
   matches: any[]
+  playerGSI: PlayerStats
 }
 
 export const [RADIANT, DIRE] = ['team2', 'team3']

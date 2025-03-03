@@ -26,40 +26,86 @@ async function getRequestAPIStratz(query: string, variables?: object, retries = 
   }
 }
 
-async function makeGraphQLProfileRequest(steamID3: number) {
+async function makeGraphQLProfileRequest(steamID: number[]) {
   const query = `
-  query playerInfo ($steamid: Long!)
-  {
-    player(steamAccountId: $steamid) {
+    query GetPlayersBySteamId(
+      $steamAccountId1: Long!,
+      $steamAccountId2: Long!,
+      $steamAccountId3: Long!,
+      $steamAccountId4: Long!,
+      $steamAccountId5: Long!,
+      $steamAccountId6: Long!,
+      $steamAccountId7: Long!,
+      $steamAccountId8: Long!,
+      $steamAccountId9: Long!,
+      $steamAccountId10: Long!
+    ) {
+      player1: player(steamAccountId: $steamAccountId1) {
+        ...PlayerData
+      }
+      player2: player(steamAccountId: $steamAccountId2) {
+        ...PlayerData
+      }
+      player3: player(steamAccountId: $steamAccountId3) {
+        ...PlayerData
+      }
+      player4: player(steamAccountId: $steamAccountId4) {
+        ...PlayerData
+      }
+      player5: player(steamAccountId: $steamAccountId5) {
+        ...PlayerData
+      }
+      player6: player(steamAccountId: $steamAccountId6) {
+        ...PlayerData
+      }
+      player7: player(steamAccountId: $steamAccountId7) {
+        ...PlayerData
+      }
+      player8: player(steamAccountId: $steamAccountId8) {
+        ...PlayerData
+      }
+      player9: player(steamAccountId: $steamAccountId9) {
+        ...PlayerData
+      }
+      player10: player(steamAccountId: $steamAccountId10) {
+        ...PlayerData
+      }
+    }
+
+    fragment PlayerData on PlayerType {
       firstMatchDate
       matchCount
       winCount
-      MatchGroupBySteamId: matchesGroupBy( request: {
+      MatchGroupBySteamId: matchesGroupBy(request: {
         take: 5
         gameModeIds: [1,22]
         playerList: SINGLE
         groupBy: STEAM_ACCOUNT_ID
       }) {
-        ... on MatchGroupBySteamAccountIdType{ matchCount winCount avgImp avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA }
+        ... on MatchGroupBySteamAccountIdType {
+          matchCount winCount avgImp avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA
+        }
       }
-      MatchGroupByHero: matchesGroupBy( request: {
+      MatchGroupByHero: matchesGroupBy(request: {
         take: 5
         gameModeIds: [1,22]
         playerList: SINGLE
         groupBy: HERO
       }) {
-        ... on MatchGroupByHeroType{ heroId matchCount winCount avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA avgImp }
+        ... on MatchGroupByHeroType {
+          heroId matchCount winCount avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA avgImp
+        }
       }
-      simpleSummary{
+      simpleSummary {
         matchCount
         lastUpdateDateTime
-        heroes
-        {
+        heroes {
           heroId
           winCount
           lossCount
         }
       }
+      steamAccountId
       steamAccount {
         name
         avatar
@@ -70,15 +116,15 @@ async function makeGraphQLProfileRequest(steamID3: number) {
         isDotaPlusSubscriber
         dotaAccountLevel
         seasonLeaderboardRank
-        guild{
-          guild{
+        guild {
+          guild {
             name
             motd
             logo
             tag
           }
         }
-        battlepass{
+        battlepass {
           level
         }
         proSteamAccount {
@@ -86,7 +132,11 @@ async function makeGraphQLProfileRequest(steamID3: number) {
           name
         }
       }
-      matches( request: {
+      ...MatchData
+    }
+
+    fragment MatchData on PlayerType {
+      matches(request: {
         isParsed: true
         gameModeIds: [1,22]
         take: 10
@@ -96,15 +146,25 @@ async function makeGraphQLProfileRequest(steamID3: number) {
         analysisOutcome
         durationSeconds
         endDateTime
-        players(steamAccountId: $steamid) { isVictory networth level assists kills deaths heroId experiencePerMinute goldPerMinute }
+        players {
+          steamAccountId
+          isVictory
+          networth
+          level
+          assists
+          kills
+          deaths
+          heroId
+          experiencePerMinute
+          goldPerMinute
+        }
       }
     }
-  }
   `
 
-  const variables = {
-    steamid: steamID3
-  }
+  const variables = Object.fromEntries(
+    steamID.slice(0, 10).map((id, index) => [`steamAccountId${index + 1}`, id])
+  )
 
   return await getRequestAPIStratz(query, variables)
 }
