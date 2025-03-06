@@ -9,6 +9,7 @@ import {
   normalizeItemNameImage
 } from '@renderer/utils'
 import PlayerLastmatch from './PlayerLastmatch.vue'
+import BestHeroes from './BestHeroes.vue'
 
 const props = defineProps<{
   playersData: { [key: string]: IPlayerSummary }
@@ -70,7 +71,7 @@ const tooltipContent = (player) => {
       <div class="flex items-center justify-between w-full gap-2">
         <!-- Avatar + Flag + Name + Rank Medal -->
         <div class="flex items-center gap-2 relative">
-          <div class="w-[100px] h-20 relative">
+          <div class="w-[90px] h-20 relative">
             <div class="avatar-container avatar-border">
               <Avatar
                 v-tooltip.top="player?.name"
@@ -175,12 +176,12 @@ const tooltipContent = (player) => {
       <div class="grid grid-cols-2 gap-2">
         <!-- Player Stats -->
         <div class="flex flex-col rounded-lg">
-          <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
+          <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">
             Match Hero Info
           </p>
 
           <!-- Current Hero Info -->
-          <div class="flex h-full bg-[#222] p-4 rounded-lg mt-2">
+          <div class="flex w-full h-full bg-[#222] p-4 rounded-lg mt-2">
             <!-- Hero Image -->
             <div class="flex flex-col">
               <OverlayBadge
@@ -191,7 +192,12 @@ const tooltipContent = (player) => {
                 severity="warn"
                 size="large"
               >
-                <div :class="`w-56 h-[220px] rounded-l-r border-2 border-gray-700 bg-[#222]`">
+                <div
+                  :class="`w-full h-auto rounded-ss-lg border-2 border-gray-500 bg-[#222]`"
+                  style="
+                    background-image: linear-gradient(135deg, rgb(34, 34, 34), rgb(68, 68, 68));
+                  "
+                >
                   <video
                     class="w-full min-h-full"
                     :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.png`"
@@ -215,7 +221,7 @@ const tooltipContent = (player) => {
                 </div>
               </OverlayBadge>
               <!-- Health and Mana -->
-              <div class="flex h-5 bg-green-600">
+              <div class="flex w-full h-5 bg-green-600">
                 <div class="relative h-full w-full">
                   <div
                     class="h-full bg-green-400"
@@ -231,7 +237,7 @@ const tooltipContent = (player) => {
                   </p>
                 </div>
               </div>
-              <div class="flex h-5 bg-blue-600">
+              <div class="flex w-full h-5 bg-blue-600">
                 <div class="relative h-full w-full">
                   <div
                     class="h-full bg-blue-400"
@@ -249,7 +255,7 @@ const tooltipContent = (player) => {
             </div>
 
             <!-- Hero Information -->
-            <div class="flex flex-col gap-2">
+            <div class="flex w-10/12 flex-col gap-2">
               <!-- Hero Info -->
               <div class="m-2 mt-4 text-gray-200">
                 <p class="font-semibold squada-one-regular text-3xl">
@@ -299,7 +305,7 @@ const tooltipContent = (player) => {
 
           <!-- Items -->
           <div class="bg-[#222] p-2 rounded-lg mt-2 flex flex-col gap-2">
-            <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">Items</p>
+            <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">Items</p>
             <div class="flex w-full h-full gap-2">
               <div
                 v-for="(item, key) in Object.keys(playerHeroItems(index))
@@ -319,7 +325,7 @@ const tooltipContent = (player) => {
         </div>
 
         <div class="flex flex-col rounded-lg">
-          <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
+          <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">
             Player Stats
           </p>
           <div
@@ -328,7 +334,24 @@ const tooltipContent = (player) => {
           >
             <PlayerLastmatch :matches="getPlayerInfo(player.accountid)?.matches ?? []" />
           </div>
-          <p v-else>No matches found</p>
+
+          <div
+            v-if="
+              getPlayerInfo(player.accountid)?.heroesGroupBy &&
+              !getPlayerInfo(player.accountid)?.steamAccount?.isAnonymous
+            "
+            class="flex w-full h-full flex-col rounded-lg mt-2"
+          >
+            <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">
+              Best Heroes
+            </p>
+            <div class="bg-[#222] p-2 rounded-lg mt-2">
+              <BestHeroes
+                :best-heroes="getPlayerInfo(player.accountid)?.heroesGroupBy ?? []"
+                :dota-plus-heroes="getPlayerInfo(player.accountid)?.dotaPlus ?? []"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

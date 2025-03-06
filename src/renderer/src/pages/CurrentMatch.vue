@@ -118,7 +118,7 @@ onMounted(async () => {
         </div>
       </Panel>
 
-      <Panel class="flex flex-col w-full dire mt-5" toggleable>
+      <!-- <Panel class="flex flex-col w-full dire mt-5" toggleable>
         <template #header>
           <div class="flex items-center gap-2 dire-shadown">
             <IconDire />
@@ -133,7 +133,7 @@ onMounted(async () => {
         <div v-else class="flex flex-col w-full h-full items-center justify-center p-4">
           <i class="pi pi-spin pi-spinner text-amber-800 text-5xl"></i>
         </div>
-      </Panel>
+      </Panel> -->
     </div>
   </div>
 </template>

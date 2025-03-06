@@ -2,6 +2,7 @@
 import { useHeroStore } from '@renderer/stores/hero-store'
 import { IMatches, IHeroes } from '@renderer/types/stratz'
 import { computed } from 'vue'
+import { normalizeHeroNameImage } from '@renderer/utils'
 
 const props = defineProps<{
   matches: IMatches[]
@@ -24,33 +25,38 @@ const getHeroInfo = (heroId: number): IHeroes | undefined => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col w-full h-full gap-4">
     <p class="font-semibold squada-one-regular text-lg uppercase text-gray-200">
-      Last 10 Matches:
+      Last Matches:
       <span :class="winRateClass">{{ winsMatches.length }}</span>
       / 10 Wins
     </p>
 
     <div class="grid grid-cols-5 gap-2">
-      <div v-for="match in props.matches" :key="match.id" class="flex flex-row">
+      <div
+        v-for="match in props.matches"
+        :key="match.id"
+        class="flex flex-row"
+        style="background-image: linear-gradient(135deg, rgb(34, 34, 34), rgb(68, 68, 68))"
+      >
         <div class="relative">
           <!-- Hero Image -->
           <img
             v-tooltip="getHeroInfo(match.players[0]?.heroId)?.displayName"
-            class="w-32 h-16 border-2 border-gray-600"
-            :src="`http://cdn.dota2.com/apps/dota2/images/heroes/${getHeroInfo(match.players[0]?.heroId)?.shortName}_lg.png`"
+            class="w-full h-full border-2 rounded-ss-md rounded-se-md border-gray-600"
+            :src="`https://cdn.stratz.com/images/dota2/heroes/${normalizeHeroNameImage(getHeroInfo(match.players[0]?.heroId)?.name ?? '')}_modelcrop.png`"
             :alt="getHeroInfo(match.players[0]?.heroId)?.displayName || 'Hero'"
           />
 
           <!-- Victory/Defeat Indicator -->
           <div
-            class="absolute top-13 left-0 right-0 bottom-0 h-4 opacity-70"
-            :class="match.players[0]?.isVictory ? 'bg-green-500' : 'bg-red-500'"
+            class="absolute left-0 right-0 bottom-0 h-6 opacity-70"
+            :class="match.players[0]?.isVictory ? 'bg-green-700' : 'bg-red-700'"
           ></div>
 
           <!-- K/D/A Stats -->
           <p
-            class="absolute top-[43px] text-gray-200 left-0 right-0 bottom-0 squada-one-regular text-lg text-center"
+            class="absolute text-gray-200 left-0 h-6 right-0 bottom-0 squada-one-regular text-lg text-center"
           >
             {{ match.players[0]?.kills }} / {{ match.players[0]?.deaths }} /
             {{ match.players[0]?.assists }}

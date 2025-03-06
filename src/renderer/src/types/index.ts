@@ -1,6 +1,7 @@
 import type router from '@renderer/router'
 import type { Pinia } from 'pinia'
 import type { App } from 'vue'
+import { DotaPlusHero, IMatches } from './stratz'
 
 export interface Loaddable {
   loading: boolean
@@ -317,6 +318,18 @@ export interface SteamAccount {
   proSteamAccount: ProSteamAccount
 }
 
+export interface MatchGroupByHeroType {
+  heroId: number
+  matchCount: number
+  winCount: number
+  avgGoldPerMinute: number
+  avgExperiencePerMinute: number
+  lastMatchDateTime: number
+  avgAssists: number
+  avgKills: number
+  avgDeaths: number
+}
+
 export interface IPlayerSummary {
   steamAccountId: number
   firstMatchDate: number
@@ -324,10 +337,12 @@ export interface IPlayerSummary {
   winCount: number
   MatchGroupBySteamId: []
   MatchGroupByHero: []
-  simpleSummary: SimpleSummary
+  // simpleSummary: SimpleSummary
+  heroesGroupBy: MatchGroupByHeroType[]
   steamAccount: SteamAccount
-  matches: any[]
+  matches: IMatches[]
   playerGSI: PlayerStats
+  dotaPlus: DotaPlusHero[]
 }
 
 export const [RADIANT, DIRE] = ['team2', 'team3']

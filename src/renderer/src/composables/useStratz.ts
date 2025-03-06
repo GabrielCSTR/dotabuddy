@@ -38,7 +38,8 @@ async function makeGraphQLProfileRequest(steamID: number[]) {
       $steamAccountId7: Long!,
       $steamAccountId8: Long!,
       $steamAccountId9: Long!,
-      $steamAccountId10: Long!
+      $steamAccountId10: Long!,
+      $heroesGroupByRequest: PlayerMatchesGroupByRequestType!
     ) {
       player1: player(steamAccountId: $steamAccountId1) {
         ...PlayerData
@@ -76,34 +77,22 @@ async function makeGraphQLProfileRequest(steamID: number[]) {
       firstMatchDate
       matchCount
       winCount
-      MatchGroupBySteamId: matchesGroupBy(request: {
-        take: 5
-        gameModeIds: [1,22]
-        playerList: SINGLE
-        groupBy: STEAM_ACCOUNT_ID
-      }) {
-        ... on MatchGroupBySteamAccountIdType {
-          matchCount winCount avgImp avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA
-        }
-      }
-      MatchGroupByHero: matchesGroupBy(request: {
-        take: 5
-        gameModeIds: [1,22]
-        playerList: SINGLE
-        groupBy: HERO
-      }) {
+      heroesGroupBy: matchesGroupBy(request: $heroesGroupByRequest) {
         ... on MatchGroupByHeroType {
-          heroId matchCount winCount avgKills avgDeaths avgAssists avgExperiencePerMinute avgGoldPerMinute avgKDA avgImp
+          heroId
+          matchCount
+          winCount
+          avgGoldPerMinute
+          avgExperiencePerMinute
+          lastMatchDateTime
+          avgAssists
+          avgKills
+          avgDeaths
         }
       }
-      simpleSummary {
-        matchCount
-        lastUpdateDateTime
-        heroes {
-          heroId
-          winCount
-          lossCount
-        }
+      dotaPlus {
+        heroId
+        level
       }
       steamAccountId
       steamAccount {
@@ -162,9 +151,18 @@ async function makeGraphQLProfileRequest(steamID: number[]) {
     }
   `
 
-  const variables = Object.fromEntries(
-    steamID.slice(0, 10).map((id, index) => [`steamAccountId${index + 1}`, id])
-  )
+  const variables = Object.fromEntries([
+    ...steamID.slice(0, 10).map((id, index) => [`steamAccountId${index + 1}`, id]),
+    [
+      'heroesGroupByRequest',
+      {
+        groupBy: 'HERO',
+        playerList: 'SINGLE',
+        skip: 0,
+        take: 10000
+      }
+    ]
+  ])
 
   return await getRequestAPIStratz(query, variables)
 }
