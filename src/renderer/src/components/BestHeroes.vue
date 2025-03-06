@@ -11,39 +11,55 @@ const heroStore = useHeroStore()
 
 // Order 10 best heroes by match count
 const bestHeroesData = computed(() =>
-  [...props.bestHeroes].sort((a, b) => b.matchCount - a.matchCount).slice(0, 10)
+  [...props.bestHeroes].sort((a, b) => b.matchCount - a.matchCount)
 )
 
-const getHeroInfo = (heroId: number): HeroType | undefined =>
-  heroStore.data.heroes.find((hero) => hero.id === heroId)
+const getHeroInfo = (heroId: number): HeroType | undefined => {
+  if (!heroStore.data?.heroes?.length) return undefined
+  return heroStore.data.heroes.find((hero) => hero.id === heroId)
+}
 
-const getHeroPlusInfo = (heroId: number): DotaPlusHero | undefined =>
-  props.dotaPlusHeroes.reduce(
-    (maxHero, currentHero) =>
-      currentHero.heroId === heroId && currentHero.level > maxHero.level ? currentHero : maxHero,
-    { heroId: 0, level: 0 } as DotaPlusHero
-  )
+const getHeroPlusInfo = (heroId: number): DotaPlusHero | undefined => {
+  return props.dotaPlusHeroes
+    .filter((hero) => hero.heroId === heroId)
+    .sort((a, b) => b.level - a.level)[0] // Retorna o maior nível
+}
 
 const sortedHeroesByLevel = computed(() =>
   bestHeroesData.value
-    .map((hero) => getHeroPlusInfo(hero.heroId)!)
-    .filter(Boolean)
-    .sort((a, b) => b.level - a.level)
+    .map((hero) => ({
+      heroId: hero.heroId,
+      plusInfo: getHeroPlusInfo(hero.heroId)
+    }))
+    .sort((a, b) => (b.plusInfo?.level ?? 0) - (a.plusInfo?.level ?? 0))
     .slice(0, 10)
 )
 
 const getBadgeImage = (level: number): string =>
   `hero_badge_${
-    level >= 30 ? 6 : level >= 25 ? 5 : level >= 15 ? 4 : level >= 10 ? 3 : level >= 5 ? 2 : 1
+    level >= 30
+      ? 6
+      : level >= 25
+        ? 5
+        : level >= 15
+          ? 4
+          : level >= 12
+            ? 3
+            : level >= 11
+              ? 2
+              : level >= 5
+                ? 1
+                : 1
   }.png`
 
 const levelGradients: Record<number, string> = {
   30: 'background-image: linear-gradient(135deg, rgb(223, 48, 68), rgb(195, 147, 70));', // lvl 30
   25: 'background-image: linear-gradient(135deg, rgb(162, 104, 187), rgb(224, 52, 36));', // lvl 25
   15: 'background-image: linear-gradient(135deg, rgb(200, 254, 252), rgb(122, 136, 255));', // lvl 20
-  10: 'background-image: linear-gradient(135deg, rgb(203, 178, 87), rgb(156, 118, 28));', // lvl 15
-  5: 'background-image: linear-gradient(135deg, rgb(0, 34, 0), rgb(0, 68, 0));', // lvl 10
-  0: 'background-image: linear-gradient(135deg, rgb(34, 0, 0), rgb(68, 0, 0));' // lvl 5
+  12: 'background-image: linear-gradient(135deg, rgb(203, 178, 87), rgb(156, 118, 28));', // lvl 12
+  11: 'background-image: linear-gradient(135deg, rgb(186, 218, 222), rgb(115, 158, 165));', // lvl 11
+  5: 'background-image: linear-gradient(135deg, rgb(0, 34, 0), rgb(0, 68, 0));', // lvl 5
+  0: 'background-image: linear-gradient(135deg, rgb(34, 0, 0), rgb(68, 0, 0));' // lvl 1
 }
 
 const getBgColor = (level: number): string => {
@@ -63,15 +79,13 @@ const getInfoBestHero = (heroId: number): MatchGroupByHeroType | undefined => {
   <div class="grid grid-cols-5 h-full items-center justify-center gap-2">
     <div
       v-for="bestHero in sortedHeroesByLevel"
-      v-show="getHeroPlusInfo(bestHero.heroId)?.heroId"
       :key="bestHero.heroId"
       class="bg-gray-800 rounded-ss-md rounded-se-md relative h-full"
-      :style="getBgColor(getHeroPlusInfo(bestHero.heroId)?.level ?? 0)"
+      :style="getBgColor(bestHero.plusInfo?.level ?? 0)"
     >
-      <!-- <OverlayBadge :value="index + 1" severity="warn" size="small" class="mr-2 mt-2"> -->
       <img
         :src="`https://cdn.stratz.com/images/dota2/heroes/${normalizeHeroNameImage(getHeroInfo(bestHero.heroId)?.name ?? '')}_modelcrop.png`"
-        :alt="getHeroInfo(bestHero.heroId)?.displayName"
+        :alt="getHeroInfo(bestHero.heroId)?.name || 'Unknown Hero'"
         class="w-full h-auto"
       />
       <!-- </OverlayBadge> -->

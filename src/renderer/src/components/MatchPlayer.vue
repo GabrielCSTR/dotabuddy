@@ -41,10 +41,6 @@ const getFlagClass = (countryCode: string | undefined) => {
   return countryCode ? `fi fi-${countryCode.toLowerCase()}` : ''
 }
 
-// Computed properties
-const playerHeroInfo = computed(() => (index: number | string) => getPlayerHeroInfo(index))
-const playerHeroItems = computed(() => (index: number | string) => getPlayerHeroItems(index))
-
 const tooltipContent = (player) => {
   const playerInfo = getPlayerInfo(player.accountid)
   return `
@@ -58,6 +54,32 @@ const tooltipContent = (player) => {
     </div>
   `
 }
+
+const getStarImage = (seasonRank: number | undefined) => {
+  return seasonRank && seasonRank < 80 && seasonRank % 10 !== 0
+    ? `/src/assets/ranks/star_${seasonRank % 10}.png`
+    : ''
+}
+
+const getMedalImage = (seasonRank) => {
+  let imagePath
+  if (seasonRank === 80) {
+    imagePath = '/src/assets/ranks/medal_8.png'
+  } else {
+    imagePath = `/src/assets/ranks/medal_${Math.floor(seasonRank / 10)}.png`
+  }
+  return imagePath
+}
+
+// Computed properties
+const playerHeroInfo = computed(() => (index: number | string) => getPlayerHeroInfo(index))
+const playerHeroItems = computed(() => (index: number | string) => getPlayerHeroItems(index))
+const getPlayerMedalImage = computed(
+  () => (seasonRank: number | undefined) => getMedalImage(seasonRank)
+)
+const getPlayerStarImage = computed(
+  () => (seasonRank: number | undefined) => getStarImage(seasonRank)
+)
 </script>
 
 <template>
@@ -125,17 +147,18 @@ const tooltipContent = (player) => {
           <div class="relative flex items-center gap-2">
             <img
               v-tooltip.top="'Season Rank'"
-              class="w-16 h-14"
-              :src="
-                getPlayerInfo(player.accountid)?.steamAccount?.seasonRank === 80
-                  ? '/src/assets/ranks/medal_8.png'
-                  : `/src/assets/ranks/medal_${Math.floor((getPlayerInfo(player.accountid)?.steamAccount?.seasonRank ?? 0) / 10)}`
-              "
+              class="absolute w-auto h-auto"
+              :src="getPlayerStarImage(getPlayerInfo(player.accountid)?.steamAccount?.seasonRank)"
+            />
+            <img
+              v-tooltip.top="'Season Rank'"
+              class="w-auto h-20"
+              :src="getPlayerMedalImage(getPlayerInfo(player.accountid)?.steamAccount?.seasonRank)"
               alt="medal"
             />
             <p
               v-if="getPlayerInfo(player.accountid)?.steamAccount?.seasonLeaderboardRank"
-              class="absolute ml-4 mt-9 text-xl p-1 squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
+              class="absolute left-7 bottom-0 right-0 text-xl squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
             >
               {{ getPlayerInfo(player.accountid)?.steamAccount?.seasonLeaderboardRank }}
             </p>
@@ -184,14 +207,7 @@ const tooltipContent = (player) => {
           <div class="flex w-full h-full bg-[#222] p-4 rounded-lg mt-2">
             <!-- Hero Image -->
             <div class="flex flex-col">
-              <OverlayBadge
-                v-tooltip="
-                  `NAME: ${normalizeHeroName(playerHeroInfo(index)?.name!)}\nLEVEL: ${playerHeroInfo(index)?.level}`
-                "
-                :value="playerHeroInfo(index)?.level"
-                severity="warn"
-                size="large"
-              >
+              <OverlayBadge :value="playerHeroInfo(index)?.level" severity="warn" size="large">
                 <div
                   :class="`w-full h-auto rounded-ss-lg border-2 border-gray-500 bg-[#222]`"
                   style="
@@ -199,6 +215,9 @@ const tooltipContent = (player) => {
                   "
                 >
                   <video
+                    v-tooltip="
+                      `NAME: ${normalizeHeroName(playerHeroInfo(index)?.name!)}\nLEVEL: ${playerHeroInfo(index)?.level}`
+                    "
                     class="w-full min-h-full"
                     :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.png`"
                     autoplay
@@ -316,7 +335,11 @@ const tooltipContent = (player) => {
                 class="flex flex-col cursor-pointer"
               >
                 <img
-                  :src="`https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(playerHeroItems(index)[item].name)}.png`"
+                  :src="
+                    normalizeItemNameImage(playerHeroItems(index)[item].name)
+                      ? `https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(playerHeroItems(index)[item].name)}.png`
+                      : '/src/assets/icons/empyt.png'
+                  "
                   class="w-12 h-10 rounded-md"
                 />
               </div>

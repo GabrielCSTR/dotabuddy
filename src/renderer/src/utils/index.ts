@@ -9,11 +9,11 @@ export function normalizeHeroNameImage(heroName: string): string {
 }
 
 export function normalizeItemName(heroName: string): string {
-  return String(heroName).split('item_')[1].split('_').join(' ').toLocaleUpperCase()
+  return String(heroName).split('item_')?.[1]?.split('_').join(' ').toLocaleUpperCase()
 }
 
 export function normalizeItemNameImage(heroName: string): string {
-  return String(heroName).split('item_')[1]
+  return String(heroName).split('item_')?.[1]
 }
 
 export function getHeroFromID(heroes: IHeroes[], heroID: number): IHeroes | undefined {

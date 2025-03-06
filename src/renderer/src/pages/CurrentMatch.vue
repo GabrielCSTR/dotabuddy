@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { DIRE, RADIANT, Dota2Events, IPlayerSummary } from '@renderer/types'
 import { useCurrentMatchStore } from '@renderer/stores/mathPlayer'
 import useStratz from '@renderer/composables/useStratz'
@@ -16,19 +16,13 @@ const gameState = ref<Dota2Events | null>(null)
 const isMatchRunning = ref(false)
 const activeLobbyPlayerIds = ref<number[]>([])
 const matchPlayerData = ref<Record<string, IPlayerSummary>>({})
+const lastMatchId = ref<string | null>(null)
 
 // Computed properties
 const radiantPlayers = computed(() => currentMatchStore.getRadiantPlayers() || {})
 const direPlayers = computed(() => currentMatchStore.getDirePlayers() || {})
 
-// Watchers
-watch(gameState, async (newValue) => {
-  if (newValue) {
-    await fetchStratzData()
-  }
-})
-
-// Functions
+// Methods
 const updateMatchState = async () => {
   gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data')
   const gamePhase = gameState.value?.map?.game_state
@@ -39,15 +33,28 @@ const updateMatchState = async () => {
 
   if (isMatchRunning.value && gameState.value) {
     console.log('GAME STATE', gameState.value)
-    setMatchData(gameState.value)
-    activeLobbyPlayerIds.value = [
-      ...Object.values(gameState.value.player?.[RADIANT] ?? {}).map((p) =>
-        parseInt((p as { accountid: string }).accountid)
-      ),
-      ...Object.values(gameState.value.player?.[DIRE] ?? {}).map((p) =>
-        parseInt((p as { accountid: string }).accountid)
-      )
-    ]
+    const currentMatchId = gameState.value.map?.matchid ?? null
+
+    // update data from new match
+    if (currentMatchId && currentMatchId !== lastMatchId.value) {
+      lastMatchId.value = currentMatchId
+      setMatchData(gameState.value)
+
+      const newLobbyPlayerIds = [
+        ...Object.values(gameState.value.player?.[RADIANT] ?? {}).map((p) =>
+          parseInt((p as { accountid: string }).accountid)
+        ),
+        ...Object.values(gameState.value.player?.[DIRE] ?? {}).map((p) =>
+          parseInt((p as { accountid: string }).accountid)
+        )
+      ]
+
+      // update player data if there are new players in the lobby
+      if (JSON.stringify(newLobbyPlayerIds) !== JSON.stringify(activeLobbyPlayerIds.value)) {
+        activeLobbyPlayerIds.value = newLobbyPlayerIds
+        await fetchStratzData()
+      }
+    }
   }
 }
 
@@ -72,6 +79,7 @@ const fetchStratzData = async () => {
 
 onMounted(async () => {
   await updateMatchState()
+  // setInterval(updateMatchState, 1000)
 })
 </script>
 
