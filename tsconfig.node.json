@@ -21,7 +21,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./out",
-    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@renderer/*": [
+        "src/renderer/src/*"
+      ]
+    },
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
