@@ -1,69 +1,62 @@
 <script lang="ts" setup>
 import { useHeroStore } from '@renderer/stores/hero-store'
 import { MatchGroupByHeroType } from '@renderer/types'
-import { IHeroes as HeroresType, DotaPlusHero } from '@renderer/types/stratz'
+import { IHeroes as HeroType, DotaPlusHero } from '@renderer/types/stratz'
 
 import { normalizeHeroNameImage } from '@renderer/utils'
 import { computed } from 'vue'
-import { ref } from 'vue'
 
-const props = defineProps<{
-  bestHeroes: MatchGroupByHeroType[]
-  dotaPlusHeroes: DotaPlusHero[]
-}>()
-
-const bestHeroesData = ref<MatchGroupByHeroType[]>([])
+const props = defineProps<{ bestHeroes: MatchGroupByHeroType[]; dotaPlusHeroes: DotaPlusHero[] }>()
 const heroStore = useHeroStore()
-// console.log('HERO STORE', props.bestHeroes)
-bestHeroesData.value = [...props.bestHeroes]
-  .sort((a, b) => b.matchCount - a.matchCount)
-  .slice(0, 10)
-console.log('BEST HEROES', bestHeroesData.value)
 
-// Helper function to get hero info
-const getHeroInfo = (heroId: number): HeroresType | undefined => {
-  return heroStore.data.heroes.find((hero) => hero.id === heroId)
+// Order 10 best heroes by match count
+const bestHeroesData = computed(() =>
+  [...props.bestHeroes].sort((a, b) => b.matchCount - a.matchCount).slice(0, 10)
+)
+
+const getHeroInfo = (heroId: number): HeroType | undefined =>
+  heroStore.data.heroes.find((hero) => hero.id === heroId)
+
+const getHeroPlusInfo = (heroId: number): DotaPlusHero | undefined =>
+  props.dotaPlusHeroes.reduce(
+    (maxHero, currentHero) =>
+      currentHero.heroId === heroId && currentHero.level > maxHero.level ? currentHero : maxHero,
+    { heroId: 0, level: 0 } as DotaPlusHero
+  )
+
+const sortedHeroesByLevel = computed(() =>
+  bestHeroesData.value
+    .map((hero) => getHeroPlusInfo(hero.heroId)!)
+    .filter(Boolean)
+    .sort((a, b) => b.level - a.level)
+    .slice(0, 10)
+)
+
+const getBadgeImage = (level: number): string =>
+  `hero_badge_${
+    level >= 30 ? 6 : level >= 25 ? 5 : level >= 15 ? 4 : level >= 10 ? 3 : level >= 5 ? 2 : 1
+  }.png`
+
+const levelGradients: Record<number, string> = {
+  30: 'background-image: linear-gradient(135deg, rgb(223, 48, 68), rgb(195, 147, 70));', // lvl 30
+  25: 'background-image: linear-gradient(135deg, rgb(162, 104, 187), rgb(224, 52, 36));', // lvl 25
+  15: 'background-image: linear-gradient(135deg, rgb(200, 254, 252), rgb(122, 136, 255));', // lvl 20
+  10: 'background-image: linear-gradient(135deg, rgb(203, 178, 87), rgb(156, 118, 28));', // lvl 15
+  5: 'background-image: linear-gradient(135deg, rgb(0, 34, 0), rgb(0, 68, 0));', // lvl 10
+  0: 'background-image: linear-gradient(135deg, rgb(34, 0, 0), rgb(68, 0, 0));' // lvl 5
+}
+
+const getBgColor = (level: number): string => {
+  return levelGradients[
+    Object.keys(levelGradients)
+      .map(Number)
+      .reverse()
+      .find((lvl) => level >= lvl) ?? 0
+  ]
 }
 
 const getInfoBestHero = (heroId: number): MatchGroupByHeroType | undefined => {
   return bestHeroesData.value.find((hero) => hero.heroId === heroId)
-}
-
-const getHeroPlusInfo = (heroId: number): DotaPlusHero | undefined => {
-  console.log('HERO ID', heroId)
-  return props.dotaPlusHeroes
-    .filter((hero) => hero.heroId === heroId)
-    .reduce((maxHero, currentHero) => (currentHero.level > maxHero.level ? currentHero : maxHero), {
-      heroId: 0,
-      level: 0
-    } as DotaPlusHero)
-}
-
-const sortedHeroesByLevel = computed(() => {
-  const heroMap = new Map<number, DotaPlusHero>()
-
-  bestHeroesData.value.forEach((hero) => {
-    const heroPlusInfo = getHeroPlusInfo(hero.heroId)
-    if (heroPlusInfo) {
-      const existingHero = heroMap.get(hero.heroId)
-      if (!existingHero || heroPlusInfo.level > existingHero.level) {
-        heroMap.set(hero.heroId, heroPlusInfo)
-      }
-    }
-  })
-
-  return Array.from(heroMap.values())
-    .sort((a, b) => b.level - a.level)
-    .slice(0, 10)
-})
-
-const getBadgeImage = (level: number): string => {
-  if (level == 30) return 'hero_badge_6.png'
-  if (level >= 25) return 'hero_badge_5.png'
-  if (level >= 15) return 'hero_badge_4.png'
-  if (level >= 10) return 'hero_badge_3.png'
-  if (level >= 5) return 'hero_badge_2.png'
-  return 'hero_badge_1.png'
 }
 </script>
 <template>
@@ -73,15 +66,17 @@ const getBadgeImage = (level: number): string => {
       v-show="getHeroPlusInfo(bestHero.heroId)?.heroId"
       :key="bestHero.heroId"
       class="bg-gray-800 rounded-ss-md rounded-se-md relative h-full"
-      style="background-image: linear-gradient(135deg, rgb(223, 48, 68), rgb(195, 147, 70))"
+      :style="getBgColor(getHeroPlusInfo(bestHero.heroId)?.level ?? 0)"
     >
+      <!-- <OverlayBadge :value="index + 1" severity="warn" size="small" class="mr-2 mt-2"> -->
       <img
         :src="`https://cdn.stratz.com/images/dota2/heroes/${normalizeHeroNameImage(getHeroInfo(bestHero.heroId)?.name ?? '')}_modelcrop.png`"
         :alt="getHeroInfo(bestHero.heroId)?.displayName"
         class="w-full h-auto"
       />
+      <!-- </OverlayBadge> -->
 
-      <div class="flex justify-evenly relative p-2" style="background: rgba(0, 0, 0, 0.6)">
+      <div class="flex justify-evenly relative p-3" style="background: rgba(0, 0, 0, 0.6)">
         <div
           class="absolute left-1/2 transform -translate-x-1/2 inline-flex justify-center items-center overflow-hidden text-[11px] w-10 h-10"
         >

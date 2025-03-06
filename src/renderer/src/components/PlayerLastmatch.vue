@@ -36,8 +36,12 @@ const getHeroInfo = (heroId: number): IHeroes | undefined => {
       <div
         v-for="match in props.matches"
         :key="match.id"
-        class="flex flex-row"
-        style="background-image: linear-gradient(135deg, rgb(34, 34, 34), rgb(68, 68, 68))"
+        class="flex flex-row bg-red-700"
+        :style="
+          match.players[0]?.isVictory
+            ? 'background-image: linear-gradient(135deg, rgb(0, 34, 0), rgb(0, 68, 0))'
+            : 'background-image: linear-gradient(135deg, rgb(34, 0, 0), rgb(68, 0, 0))'
+        "
       >
         <div class="relative">
           <!-- Hero Image -->
