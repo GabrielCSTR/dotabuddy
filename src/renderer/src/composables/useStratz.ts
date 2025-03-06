@@ -220,9 +220,5 @@ async function makeGraphQLGetPlayerBestHeroes(steamID3: number) {
 }
 
 export default function useStractz() {
-  return {
-    makeGraphQLProfileRequest,
-    makeGraphQLHerosRequest,
-    makeGraphQLGetPlayerBestHeroes
-  }
+  return { makeGraphQLProfileRequest, makeGraphQLHerosRequest, makeGraphQLGetPlayerBestHeroes }
 }

@@ -3,7 +3,7 @@ const routes = [
   {
     path: '/',
     name: 'Index',
-    component: () => import('@renderer/pages/Dashboard.vue')
+    component: () => import('@renderer/pages/Index.vue')
   },
   {
     path: '/app',

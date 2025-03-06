@@ -209,7 +209,7 @@ const getPlayerStarImage = computed(
             <div class="flex flex-col">
               <OverlayBadge :value="playerHeroInfo(index)?.level" severity="warn" size="large">
                 <div
-                  :class="`w-full h-auto rounded-ss-lg border-2 border-gray-500 bg-[#222]`"
+                  :class="`w-full h-full rounded-ss-lg border-2 border-gray-500 bg-[#222]`"
                   style="
                     background-image: linear-gradient(135deg, rgb(34, 34, 34), rgb(68, 68, 68));
                   "
@@ -218,7 +218,7 @@ const getPlayerStarImage = computed(
                     v-tooltip="
                       `NAME: ${normalizeHeroName(playerHeroInfo(index)?.name!)}\nLEVEL: ${playerHeroInfo(index)?.level}`
                     "
-                    class="w-full min-h-full"
+                    class="w-full h-full"
                     :poster="`https://cdn.akamai.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${normalizeHeroNameImage(playerHeroInfo(index)?.name!)}.png`"
                     autoplay
                     preload="auto"
@@ -347,13 +347,13 @@ const getPlayerStarImage = computed(
           </div>
         </div>
 
-        <div class="flex flex-col rounded-lg">
+        <div class="flex w-full h-full flex-col rounded-lg">
           <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">
             Player Stats
           </p>
           <div
             v-if="getPlayerInfo(player.accountid)?.matches"
-            class="bg-[#222] p-4 rounded-lg mt-2"
+            class="bg-[#222] p-4 rounded-lg mt-2 h-1/2"
           >
             <PlayerLastmatch :matches="getPlayerInfo(player.accountid)?.matches ?? []" />
           </div>
@@ -363,7 +363,7 @@ const getPlayerStarImage = computed(
               getPlayerInfo(player.accountid)?.heroesGroupBy &&
               !getPlayerInfo(player.accountid)?.steamAccount?.isAnonymous
             "
-            class="flex w-full h-full flex-col rounded-lg mt-2"
+            class="flex flex-col rounded-lg"
           >
             <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">
               Best Heroes
