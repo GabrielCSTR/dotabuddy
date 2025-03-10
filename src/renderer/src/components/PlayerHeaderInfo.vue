@@ -23,11 +23,30 @@ const getMedalImage = (seasonRank) => {
   return imagePath
 }
 
+function getLeaderboardMedalImage(seasonRank, seasonLeaderboardRank) {
+  const parsedSeasonRank = parseInt(seasonRank)
+  const parsedLeaderboardRank = parseInt(seasonLeaderboardRank)
+
+  if (parsedSeasonRank === 80 && !isNaN(parsedLeaderboardRank)) {
+    return parsedLeaderboardRank <= 10
+      ? '/src/assets/ranks/medal_8c.png'
+      : parsedLeaderboardRank <= 100
+        ? '/src/assets/ranks/medal_8b.png'
+        : '/src/assets/ranks/medal_8.png'
+  }
+
+  return ''
+}
+
 const getPlayerMedalImage = computed(
   () => (seasonRank: number | undefined) => getMedalImage(seasonRank)
 )
 const getPlayerStarImage = computed(
   () => (seasonRank: number | undefined) => getStarImage(seasonRank)
+)
+const getPlayerMedalLeaderboardImage = computed(
+  () => (seasonRank: number | undefined, seasonLeaderboardRank: number | undefined) =>
+    getLeaderboardMedalImage(seasonRank, seasonLeaderboardRank)
 )
 
 const getFlagClass = (countryCode: string | undefined) => {
@@ -112,14 +131,27 @@ const tooltipContent = (guild) => {
         :src="getPlayerStarImage(props.player?.steamAccount?.seasonRank)"
       />
       <img
+        v-if="props.player?.steamAccount?.seasonRank ?? 0 < 80"
         v-tooltip.top="'Season Rank'"
         class="w-auto h-20"
         :src="getPlayerMedalImage(props.player?.steamAccount?.seasonRank)"
         alt="medal"
       />
+      <img
+        v-else-if="props.player?.steamAccount?.seasonRank ?? 0 >= 80"
+        v-tooltip.top="'Season Rank'"
+        class="w-auto h-20"
+        :src="
+          getPlayerMedalLeaderboardImage(
+            props.player?.steamAccount?.seasonRank,
+            props.player?.steamAccount?.seasonLeaderboardRank
+          )
+        "
+        alt="medal"
+      />
       <p
         v-if="props.player?.steamAccount?.seasonLeaderboardRank"
-        class="absolute left-7 bottom-0 right-0 text-xl squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
+        class="absolute left-0 bottom-0 right-0 text-center text-xl squada-one-regular bg-gradient-to-r font-semibold from-slate-100 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text"
       >
         {{ props.player?.steamAccount?.seasonLeaderboardRank }}
       </p>

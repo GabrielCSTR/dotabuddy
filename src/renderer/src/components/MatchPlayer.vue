@@ -53,11 +53,15 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
     <template #header>
       <div class="flex items-center justify-between w-full gap-2">
         <!-- Avatar + Flag + Name + Rank Medal -->
-        <PlayerHeaderInfo :player="getPlayerInfo(player.accountid)" />
+        <PlayerHeaderInfo :key="player.accountid" :player="getPlayerInfo(player.accountid)" />
 
         <!-- Profile Links -->
         <div class="flex items-center gap-2 min-w-52 justify-end mr-3">
-          <ProfileLinks :steamid="player.steamid" :accountid="player.accountid" />
+          <ProfileLinks
+            :key="player.accountid"
+            :steamid="player.steamid"
+            :accountid="player.accountid"
+          />
         </div>
       </div>
     </template>
@@ -76,6 +80,7 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
               <!-- Hero Video -->
               <OverlayBadge :value="playerHeroInfo(index)?.level" severity="warn" size="large">
                 <HeroVideo
+                  :key="player.accountid"
                   class="w-full h-full"
                   :hero-name="playerHeroInfo(index)?.name!"
                   :hero-level="playerHeroInfo(index)?.level!"
@@ -106,6 +111,7 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
             <!-- Hero Information -->
             <div class="flex w-full h-full flex-col gap-2">
               <HeroInfo
+                :key="player.accountid"
                 class="p-2 mt-4"
                 :hero-name="normalizeHeroName(playerHeroInfo(index)?.name!)!"
                 :player="player"
@@ -127,6 +133,7 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
                 class="flex flex-col cursor-pointer"
               >
                 <img
+                  :key="player.accountid"
                   :src="
                     normalizeItemNameImage(playerHeroItems(index)[item].name)
                       ? `https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(playerHeroItems(index)[item].name)}.png`
@@ -147,7 +154,10 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
             v-if="getPlayerInfo(player.accountid)?.matches"
             class="bg-[#222] p-4 rounded-lg mt-2 h-1/2"
           >
-            <PlayerLastmatch :matches="getPlayerInfo(player.accountid)?.matches ?? []" />
+            <PlayerLastmatch
+              :key="player.accountid"
+              :matches="getPlayerInfo(player.accountid)?.matches ?? []"
+            />
           </div>
 
           <div
@@ -162,6 +172,7 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
             </p>
             <div class="bg-[#222] p-2 rounded-lg mt-2">
               <BestHeroes
+                :key="player.accountid"
                 :best-heroes="getPlayerInfo(player.accountid)?.heroesGroupBy ?? []"
                 :dota-plus-heroes="getPlayerInfo(player.accountid)?.dotaPlus ?? []"
               />

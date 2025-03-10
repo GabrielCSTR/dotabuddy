@@ -25,6 +25,7 @@ const direPlayers = computed(() => currentMatchStore.getDirePlayers() || {})
 // Methods
 const updateMatchState = async () => {
   gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data')
+
   const gamePhase = gameState.value?.map?.game_state
   isMatchRunning.value = [
     'DOTA_GAMERULES_STATE_PRE_GAME',
@@ -32,11 +33,11 @@ const updateMatchState = async () => {
   ].includes(gamePhase ?? '')
 
   if (isMatchRunning.value && gameState.value) {
-    console.log('GAME STATE', gameState.value)
+    // console.log('GAME STATE', gameState.value)
     const currentMatchId = gameState.value.map?.matchid ?? null
 
     // update data from new match
-    if (currentMatchId && currentMatchId !== lastMatchId.value) {
+    if (currentMatchId) {
       lastMatchId.value = currentMatchId
       setMatchData(gameState.value)
 
@@ -118,6 +119,7 @@ onMounted(async () => {
         </template>
         <MatchPlayer
           v-if="Object.keys(matchPlayerData).length && gameState?.player"
+          :key="`radiant-${gameState?.map?.matchid}`"
           :players-data="matchPlayerData"
           :players-events="radiantPlayers"
         />
@@ -135,6 +137,7 @@ onMounted(async () => {
         </template>
         <MatchPlayer
           v-if="Object.keys(matchPlayerData).length && gameState?.player"
+          :key="`dire-${gameState?.map?.matchid}`"
           :players-data="matchPlayerData"
           :players-events="direPlayers"
         />
