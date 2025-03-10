@@ -131,14 +131,17 @@ const tooltipContent = (guild) => {
         :src="getPlayerStarImage(props.player?.steamAccount?.seasonRank)"
       />
       <img
-        v-if="props.player?.steamAccount?.seasonRank ?? 0 < 80"
+        v-if="props.player?.steamAccount?.seasonRank! < 80"
         v-tooltip.top="'Season Rank'"
         class="w-auto h-20"
         :src="getPlayerMedalImage(props.player?.steamAccount?.seasonRank)"
         alt="medal"
       />
       <img
-        v-else-if="props.player?.steamAccount?.seasonRank ?? 0 >= 80"
+        v-else-if="
+          props.player?.steamAccount?.seasonRank === 80 &&
+          !isNaN(props.player?.steamAccount?.seasonLeaderboardRank)
+        "
         v-tooltip.top="'Season Rank'"
         class="w-auto h-20"
         :src="

@@ -8,6 +8,7 @@ import MatchTimer from '@renderer/components/MatchTimer.vue'
 import IconRadiant from '@renderer/components/icons/IconRadiant.vue'
 import IconDire from '@renderer/components/icons/IconDire.vue'
 import MatchPlayer from '@renderer/components/MatchPlayer.vue'
+import WebSocketService from '@renderer/composables/ws-socket'
 
 const currentMatchStore = useCurrentMatchStore()
 const { makeGraphQLProfileRequest } = useStratz()
@@ -23,8 +24,9 @@ const radiantPlayers = computed(() => currentMatchStore.getRadiantPlayers() || {
 const direPlayers = computed(() => currentMatchStore.getDirePlayers() || {})
 
 // Methods
-const updateMatchState = async () => {
-  gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data')
+const updateMatchState = async (data: Dota2Events) => {
+  // gameState.value = await window.electron.ipcRenderer.invoke('get-dota2-data');
+  gameState.value = data
 
   const gamePhase = gameState.value?.map?.game_state
   isMatchRunning.value = [
@@ -79,8 +81,12 @@ const fetchStratzData = async () => {
 }
 
 onMounted(async () => {
-  await updateMatchState()
-  // setInterval(updateMatchState, 1000)
+  WebSocketService.connect()
+
+  WebSocketService.socket?.addEventListener('message', async (event) => {
+    const data = JSON.parse(event.data)
+    await updateMatchState(data)
+  })
 })
 </script>
 
