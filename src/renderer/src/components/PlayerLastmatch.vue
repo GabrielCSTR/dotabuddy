@@ -8,8 +8,6 @@ const props = defineProps<{
   matches: IMatches[]
 }>()
 
-console.log('PlayerLastmatch', props.matches)
-
 const heroStore = useHeroStore()
 
 // Computed properties

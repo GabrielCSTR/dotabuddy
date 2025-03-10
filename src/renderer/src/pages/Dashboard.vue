@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Barwindow from '@renderer/components/BarWindow.vue'
+import NavbarWindow from '@renderer/components/NavbarWindow.vue'
 import useStractz from '@renderer/composables/useStratz'
 import { useHeroStore } from '@renderer/stores/hero-store'
 import { onMounted } from 'vue'
@@ -25,7 +25,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col w-full h-screen">
-    <Barwindow />
+    <NavbarWindow />
 
     <Tabs value="/app/current-match" class="flex w-full items-center justify-center">
       <TabList class="flex w-full h-full items-center justify-center">

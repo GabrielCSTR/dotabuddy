@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Dota2Events } from '@renderer/types'
+
 const props = defineProps<{
-  map: Record<string, any>
+  map: Dota2Events['map']
 }>()
 
 const formattedClockTime = computed(() => {
