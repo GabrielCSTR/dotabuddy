@@ -12,11 +12,11 @@
 
 ## 📸 Screenshots
 
-<img src="./screenshot/01.png" alt="Screenshot 1" />
-<img src="./screenshot/02.png" alt="Screenshot 2" />
-<img src="./screenshot/03.png" alt="Screenshot 3" />
-<img src="./screenshot/04.png" alt="Screenshot 4" />
-<img src="./screenshot/05.png" alt="Screenshot 5" />
+![Screenshot 1](./screenshot/01.png)
+![Screenshot 2](./screenshot/02.png)
+![Screenshot 3](./screenshot/03.png)
+![Screenshot 4](./screenshot/04.png)
+![Screenshot 5](./screenshot/05.png)
 
 ## 🛠️ Installation
 
@@ -53,7 +53,7 @@ npm run build:linux
 
 ## 📂 Project Structure
 
-```
+```bash
 .editorconfig
 .env
 .eslintignore
@@ -167,7 +167,7 @@ This project is licensed under the [MIT License](LICENSE).
 Have any questions or suggestions? Feel free to reach out:
 
 - **GitHub Issues**: [Create an issue](https://github.com/GabrielCSTR/dotabuddy/issues)
-- **Email**: gabriel.developed@gmail.com
+- **Email**: <gabriel.developed@gmail.com>
 - **Discord Community**: [Join us](https://discord.gg/#)
 
 ---
