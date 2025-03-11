@@ -3,10 +3,10 @@ import Versions from '@renderer/components/Versions.vue'
 </script>
 
 <template>
-  <video class="fixed top-0 left-0 w-full h-full object-cover z-[-1]" autoplay loop>
+  <!-- <video class="fixed top-0 left-0 w-full h-full object-cover z-[-1]" autoplay loop>
     <source src="@renderer/assets/d2_loading.mp4" type="video/mp4" />
     Your browser does not support the video tag.
-  </video>
+  </video> -->
   <div
     class="flex flex-col items-center absolute top-3/4 left-1/2 transform translate-x-[-50%] translate-y-[-50%] text-gray-200"
   >

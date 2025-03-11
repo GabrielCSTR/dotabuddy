@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+// import { onMounted } from 'vue'
+// import { useRouter } from 'vue-router'
 
-const router = useRouter()
+// const router = useRouter()
 
-onMounted(() => {
-  setTimeout(() => {
-    router.push({ name: 'app-current-match' })
-  }, 25000)
-})
+// onMounted(() => {
+//   setTimeout(() => {
+//     router.push({ name: 'app-current-match' })
+//   }, 25000)
+// })
 </script>
 
 <template>

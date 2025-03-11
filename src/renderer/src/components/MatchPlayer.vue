@@ -28,14 +28,13 @@ const getPlayerInfo = (steamid: string) => {
 }
 
 const getPlayerHeroInfo = (index: number | string) => {
-  const radiantHeroes = currentMatchStore.getRadiantHeroes()
-  const direHeroes = currentMatchStore.getDireHeroes()
+  const radiantHeroes = currentMatchStore.radiantHeroes
+  const direHeroes = currentMatchStore.direHeroes
   return radiantHeroes?.[index] || direHeroes?.[index]
 }
 
 const getPlayerHeroItems = (index: number | string) => {
-  const heroItems =
-    currentMatchStore.getRadiantItems()?.[index] || currentMatchStore.getDireItems()?.[index]
+  const heroItems = currentMatchStore.radiantItems?.[index] || currentMatchStore.direItems?.[index]
   return heroItems || {}
 }
 

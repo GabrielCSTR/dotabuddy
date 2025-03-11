@@ -20,8 +20,8 @@ const matchPlayerData = ref<Record<string, IPlayerSummary>>({})
 const lastMatchId = ref<string | null>(null)
 
 // Computed properties
-const radiantPlayers = computed(() => currentMatchStore.getRadiantPlayers() || {})
-const direPlayers = computed(() => currentMatchStore.getDirePlayers() || {})
+const radiantPlayers = computed(() => currentMatchStore.radiantPlayers || {})
+const direPlayers = computed(() => currentMatchStore.direPlayers || {})
 
 // Methods
 const updateMatchState = async (data: Dota2Events) => {
@@ -64,12 +64,12 @@ const updateMatchState = async (data: Dota2Events) => {
 const setMatchData = (gameState: Dota2Events) => {
   if (!gameState) return
 
-  currentMatchStore.addRadiantPlayer(gameState.player?.[RADIANT] as Dota2Events['player'])
-  currentMatchStore.addDirePlayer(gameState.player?.[DIRE] as Dota2Events['player'])
-  currentMatchStore.addRadiantHero(gameState.hero?.[RADIANT] as Dota2Events['hero'])
-  currentMatchStore.addDireHero(gameState.hero?.[DIRE] as Dota2Events['hero'])
-  currentMatchStore.addRadiantItems(gameState.items?.[RADIANT] as Dota2Events['items'])
-  currentMatchStore.addDireItems(gameState.items?.[DIRE] as Dota2Events['items'])
+  currentMatchStore.setPlayers('radiant', gameState.player?.[RADIANT])
+  currentMatchStore.setPlayers('dire', gameState.player?.[DIRE])
+  currentMatchStore.setHeroes('radiant', gameState.hero?.[RADIANT])
+  currentMatchStore.setHeroes('dire', gameState.hero?.[DIRE])
+  currentMatchStore.setItems('radiant', gameState.items?.[RADIANT])
+  currentMatchStore.setItems('dire', gameState.items?.[DIRE])
 
   currentMatchStore.isMatchRunning = true
 }

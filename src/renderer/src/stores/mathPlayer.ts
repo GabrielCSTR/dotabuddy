@@ -1,77 +1,46 @@
 import { defineStore } from 'pinia'
-import type { Dota2Events } from '@renderer/types'
+import type { Dota2Events, PlayerStats } from '@renderer/types'
 
 export const useCurrentMatchStore = defineStore('match-player', {
   state: () => ({
     isMatchRunning: false,
-    radiantPlayers: null as null | Dota2Events['player'],
-    direPlayers: null as null | Dota2Events['player'],
-    radiantHeroes: null as null | Dota2Events['hero'],
-    direHeroes: null as null | Dota2Events['hero'],
-    radiantSkills: null as null | Dota2Events['ability'],
-    direSkills: null as null | Dota2Events['ability'],
-    radiantItems: null as null | Dota2Events['item'],
-    direItems: null as null | Dota2Events['item']
+    radiantPlayers: {} as { [key: string]: PlayerStats },
+    direPlayers: {} as { [key: string]: PlayerStats },
+    radiantHeroes: null as Dota2Events['hero'] | null,
+    direHeroes: null as Dota2Events['hero'] | null,
+    radiantSkills: { team2: {}, team3: {} } as Dota2Events['abilities'],
+    direSkills: { team2: {}, team3: {} } as Dota2Events['abilities'],
+    radiantItems: {} as Dota2Events['items'],
+    direItems: {} as Dota2Events['items']
   }),
+
   actions: {
-    addRadiantPlayer(player: Dota2Events['player']) {
-      this.radiantPlayers = player
+    setPlayers(team: 'radiant' | 'dire', players: { [key: string]: PlayerStats }) {
+      this[`${team}Players`] = players
     },
-    addDirePlayer(player: Dota2Events['player']) {
-      this.direPlayers = player
+
+    setHeroes(team: 'radiant' | 'dire', heroes: Dota2Events['hero']) {
+      this[`${team}Heroes`] = heroes
     },
-    addRadiantHero(hero: Dota2Events['hero']) {
-      this.radiantHeroes = hero
+
+    setSkills(team: 'radiant' | 'dire', skills: Dota2Events['abilities']) {
+      this[`${team}Skills`] = skills
     },
-    addDireHero(hero: Dota2Events['hero']) {
-      this.direHeroes = hero
+
+    setItems(team: 'radiant' | 'dire', items: Dota2Events['items']) {
+      this[`${team}Items`] = items
     },
-    addRadiantSkills(skills: Dota2Events['ability']) {
-      this.radiantSkills = skills
-    },
-    addDireSkills(skills: Dota2Events['ability']) {
-      this.direSkills = skills
-    },
-    addRadiantItems(items: Dota2Events['item']) {
-      this.radiantItems = items
-    },
-    addDireItems(items: Dota2Events['item']) {
-      this.direItems = items
-    },
-    getRadiantPlayers() {
-      return this.radiantPlayers
-    },
-    getDirePlayers() {
-      return this.direPlayers
-    },
-    getRadiantHeroes() {
-      return this.radiantHeroes
-    },
-    getDireHeroes() {
-      return this.direHeroes
-    },
-    getRadiantSkills() {
-      return this.radiantSkills
-    },
-    getDireSkills() {
-      return this.direSkills
-    },
-    getRadiantItems() {
-      return this.radiantItems
-    },
-    getDireItems() {
-      return this.direItems
-    },
+
     clear() {
       this.isMatchRunning = false
-      this.radiantPlayers = []
-      this.direPlayers = []
-      this.radiantHeroes = []
-      this.direHeroes = []
-      this.radiantSkills = []
-      this.direSkills = []
-      this.radiantItems = []
-      this.direItems = []
+      this.radiantPlayers = {}
+      this.direPlayers = {}
+      this.radiantHeroes = null
+      this.direHeroes = null
+      this.radiantSkills = { team2: {}, team3: {} }
+      this.direSkills = { team2: {}, team3: {} }
+      this.radiantItems = { team2: {}, team3: {} }
+      this.direItems = { team2: {}, team3: {} }
     }
   }
 })

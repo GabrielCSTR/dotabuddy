@@ -1,11 +1,10 @@
 import { ipcMain } from 'electron'
 import D2gsi from 'dota2-gsi'
 import WebSocket from 'ws'
-import dota2Events from './dota2-events.json' // dev mod
+// import dota2Events from './dota2-events.json' // dev mod
 
 export function setupIpcGSIDota2Handlers() {
-  const gsi = new D2gsi({ port: 3000 }) // Servidor na porta 3000
-
+  const gsi = new D2gsi({ port: 3000 })
   let gameState = {}
 
   // WEBSOCKET SERVER
