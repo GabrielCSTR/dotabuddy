@@ -2,7 +2,7 @@
 import { IPlayerSummary, PlayerStats } from '@renderer/types'
 import { computed } from 'vue'
 import { useCurrentMatchStore } from '@renderer/stores'
-import { normalizeHeroName, normalizeItemName, normalizeItemNameImage } from '@renderer/utils'
+import { normalizeHeroName } from '@renderer/utils'
 
 import PlayerLastmatch from './PlayerLastmatch.vue'
 import BestHeroes from './BestHeroes.vue'
@@ -11,6 +11,7 @@ import HeroVideo from './HeroVideo.vue'
 import BarHero from './BarHero.vue'
 import HeroInfo from './HeroInfo.vue'
 import PlayerHeaderInfo from './PlayerHeaderInfo.vue'
+import PlayerItems from './PlayerItems.vue'
 
 const props = defineProps<{
   playersData: { [key: string]: IPlayerSummary }
@@ -121,27 +122,14 @@ const playerHeroItems = computed(() => (index: number | string) => getPlayerHero
           </div>
 
           <!-- Items -->
+          <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">Items</p>
           <div class="bg-[#222] p-2 rounded-lg mt-2 flex flex-col gap-2">
-            <p class="font-semibold squada-one-regular text-3xl uppercase text-gray-200">Items</p>
             <div class="flex w-full h-full gap-2">
-              <div
-                v-for="(item, key) in Object.keys(playerHeroItems(index))
-                  .filter((key) => key.startsWith('slot'))
-                  .slice(0, 6)"
-                :key="key"
-                v-tooltip.top="normalizeItemName(playerHeroItems(index)[item].name!)"
-                class="flex flex-col cursor-pointer"
-              >
-                <img
-                  :key="player.accountid"
-                  :src="
-                    normalizeItemNameImage(playerHeroItems(index)[item].name)
-                      ? `https://cdn.stratz.com/images/dota2/items/${normalizeItemNameImage(playerHeroItems(index)[item].name)}.png`
-                      : '/src/assets/icons/empyt.png'
-                  "
-                  class="w-12 h-10 rounded-md"
-                />
-              </div>
+              <PlayerItems
+                :key="player.accountid"
+                :player="player"
+                :player-hero-items="playerHeroItems(index)"
+              />
             </div>
           </div>
         </div>
