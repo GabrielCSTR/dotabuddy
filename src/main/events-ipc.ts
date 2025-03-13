@@ -1,38 +1,38 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 
-export function setupIpcHandlers() {
+export function setupIpcHandlers(mainWindow: Electron.BrowserWindow | null) {
   ipcMain.handle('get-window-position', () => {
-    const win = BrowserWindow.getFocusedWindow()
-    return win ? win.getBounds() : [0, 0]
+    return mainWindow ? mainWindow.getBounds() : [0, 0]
   })
 
   ipcMain.on('move-window', (_event, x, y) => {
-    const win = BrowserWindow.getFocusedWindow()
-    if (win) {
-      win.setBounds({ x, y, width: win.getBounds().width, height: win.getBounds().height })
+    if (mainWindow) {
+      mainWindow.setBounds({
+        x,
+        y,
+        width: mainWindow.getBounds().width,
+        height: mainWindow.getBounds().height
+      })
     }
   })
 
   ipcMain.on('window-minimize', () => {
     console.log('minimize')
 
-    const win = BrowserWindow.getFocusedWindow()
-    if (win) win.minimize()
+    if (mainWindow) mainWindow.minimize()
   })
 
   ipcMain.on('window-maximize', () => {
-    const win = BrowserWindow.getFocusedWindow()
-    if (win) {
-      if (win.isMaximized()) {
-        win.unmaximize()
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
       } else {
-        win.maximize()
+        mainWindow.maximize()
       }
     }
   })
 
   ipcMain.on('window-close', () => {
-    const win = BrowserWindow.getFocusedWindow()
-    if (win) win.close()
+    if (mainWindow) mainWindow.close()
   })
 }

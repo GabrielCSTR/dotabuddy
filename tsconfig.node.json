@@ -6,7 +6,7 @@
     "src/**/*.vue",
     "src/main/*.ts",
     "src/main/*.json",
-    "src/preload/*",
+    "src/preload/*.ts",
     "src/renderer/src/**/*.ts",
     "src/renderer/src/**/*.vue",
     "src/renderer/src/stores/*.ts",

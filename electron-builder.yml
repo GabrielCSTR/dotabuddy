@@ -1,41 +1,38 @@
-appId: com.electron.app
-productName: dotabuddy
+appId: com.electron.dotabuddy
+productName: DotaBuddy
 directories:
-  buildResources: build
+  output: dist
 files:
-  - '!**/.vscode/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
-  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{.env,.env.*,pnpm-lock.yaml,package-lock.json}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
-  - 'src/renderer/src/assets/**/*'
-asarUnpack:
-  - resources/**
+extraResources:
+  - from: out/preload
+    to: preload
+  - from: out/main
+    to: main
+  - from: out/renderer
+    to: renderer
 win:
-  executableName: dotabuddy
+  icon: 'build/icon.ico'
+  target:
+    - nsis
+    # - zip
+  requestedExecutionLevel: 'requireAdministrator'
 nsis:
+  oneClick: true
+  installerIcon: 'build/icon.ico'
+  uninstallerIcon: 'build/icon.ico'
+  installerHeaderIcon: 'build/icon.ico'
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: true
   artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
+  createDesktopShortcut: true
 dmg:
   artifactName: ${name}-${version}.${ext}
-linux:
-  target:
-    - AppImage
-    - snap
-    - deb
-  maintainer: electronjs.org
-  category: Utility
+  icon: 'build/icon.ico'
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false

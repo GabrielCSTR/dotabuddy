@@ -25,6 +25,10 @@ const routes = [
         component: () => import('@renderer/pages/Settings.vue')
       }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 

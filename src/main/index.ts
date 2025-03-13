@@ -4,7 +4,7 @@ import { devMenuTemplate } from '../renderer/src/menu/dev_menu_template'
 import { editMenuTemplate } from '../renderer/src/menu/edit_menu_template'
 import { setupIpcHandlers } from './events-ipc'
 import { join } from 'path'
-import icon from '../../resources/icon.png?asset'
+import icon from '../../resources/icon.png'
 import { setupIpcGSIDota2Handlers } from './dota2-gsi'
 
 function setApplicationMenu() {
@@ -32,10 +32,10 @@ function createWindow(): void {
       nodeIntegrationInWorker: true,
       preload: join(__dirname, '../preload/index.js'),
       nodeIntegration: true,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      contextIsolation: true,
       sandbox: false
     },
-    icon: join(__dirname, '../../resources/logo.png')
+    icon: join(__dirname, '../../build/icon.ico')
   })
 
   if (is.dev) {
@@ -58,6 +58,9 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Ipc handlers
+  setupIpcHandlers(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -78,8 +81,6 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
-
-  setupIpcHandlers()
 
   setupIpcGSIDota2Handlers()
 
